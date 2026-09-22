@@ -262,7 +262,6 @@
                     try {
                         return JSON.parse(text);
                     } catch (e) {
-                        // ดักจับกรณี Server ส่งข้อความ Error ที่ไม่ใช่ JSON
                         const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
                         throw new Error(cleanText || 'ตอบกลับจากเซิร์ฟเวอร์ไม่ถูกต้อง');
                     }
