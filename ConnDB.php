@@ -1,15 +1,22 @@
 <?php
-$host     = getenv('MYSQLHOST')     ?: 'localhost';
-$username = getenv('MYSQLUSER')     ?: 'root';
-$password = getenv('MYSQLPASSWORD') ?: '';
-$dbname   = getenv('MYSQLDATABASE') ?: 'db_northwind';
-$port     = getenv('MYSQLPORT')     ?: '3306';
+$host     = 'switchback.proxy.rlwy.net';
+$port     = 58555;
+$dbname   = 'railway';
+$user     = 'root';
+$password = 'QEDXiKjuiHriIbRpcvrhAsUPfVECnDBs';
 
-$conn = new mysqli($host, $username, $password, $dbname, $port);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+try {
+    $conn = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $user, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
+} catch (PDOException $e) {
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'เชื่อมต่อฐานข้อมูลล้มเหลว: ' . $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
-
-$conn->set_charset("utf8mb4");
 ?>
