@@ -257,7 +257,16 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(res => res.json())
+                .then(async res => {
+                    const text = await res.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        // ดักจับกรณี Server ส่งข้อความ Error ที่ไม่ใช่ JSON
+                        const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
+                        throw new Error(cleanText || 'ตอบกลับจากเซิร์ฟเวอร์ไม่ถูกต้อง');
+                    }
+                })
                 .then(data => {
                     if (data.success) {
                         if (insertedDetails) {
@@ -283,7 +292,7 @@
                     }
                 })
                 .catch(err => {
-                    if (serverErrorList) serverErrorList.innerHTML = `<li>ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ${err.message}</li>`;
+                    if (serverErrorList) serverErrorList.innerHTML = `<li>เกิดข้อผิดพลาด: ${err.message}</li>`;
                     if (serverErrorAlert) serverErrorAlert.classList.remove('d-none');
                 });
             });
