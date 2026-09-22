@@ -1,18 +1,15 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "db_northwind";
+$host     = getenv('MYSQLHOST')     ?: 'localhost';
+$username = getenv('MYSQLUSER')     ?: 'root';
+$password = getenv('MYSQLPASSWORD') ?: '';
+$dbname   = getenv('MYSQLDATABASE') ?: 'db_northwind';
+$port     = getenv('MYSQLPORT')     ?: '3306';
 
-try {
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: ' . $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
+$conn = new mysqli($host, $username, $password, $dbname, $port);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+$conn->set_charset("utf8mb4");
 ?>
