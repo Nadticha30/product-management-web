@@ -6,17 +6,33 @@ try {
     $stmt = $conn->query("SELECT * FROM tb_products ORDER BY 1 DESC");
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // ปรับชื่อ Field ส่งออกให้ตรงกับที่ Dashboard ต้องการ ไม่ว่าจะใช้คอลัมน์ชื่อไหนใน DB
-    $formatted = array_map(function($row) {
-        $id    = $row['i_ProductID'] ?? $row['ProductID'] ?? $row['f_ProductID'] ?? reset($row);
-        $name  = $row['c_ProductName'] ?? $row['ProductName'] ?? '';
-        $cat   = $row['i_CategoryID'] ?? $row['CategoryID'] ?? 0;
-        $sup   = $row['i_SupplierID'] ?? $row['SupplierID'] ?? 0;
-        $unit  = $row['c_Unit'] ?? $row['QuantityPerUnit'] ?? $row['Unit'] ?? '';
-        $price = floatval($row['f_Price'] ?? $row['UnitPrice'] ?? $row['f_UnitPrice'] ?? $row['Price'] ?? 0);
-        $stock = intval($row['i_UnitsInStock'] ?? $row['UnitsInStock'] ?? $row['Quantity'] ?? 0);
+    $result = [];
+    foreach ($products as $row) {
+        $id   = $row['i_ProductID'] ?? $row['ProductID'] ?? $row['id'] ?? 0;
+        $name = $row['c_ProductName'] ?? $row['ProductName'] ?? $row['name'] ?? '';
+        $cat  = $row['i_CategoryID'] ?? $row['CategoryID'] ?? 0;
+        $sup  = $row['i_SupplierID'] ?? $row['SupplierID'] ?? 0;
+        $unit = $row['c_Unit'] ?? $row['QuantityPerUnit'] ?? $row['Unit'] ?? '';
+        
+        // ค้นหาราคาจากชื่อคอลัมน์ที่เป็นไปได้ทั้งหมด
+        $price = 0;
+        foreach (['f_UnitPrice', 'UnitPrice', 'f_Price', 'Price', 'f_unitprice', 'unitprice', 'price'] as $key) {
+            if (isset($row[$key]) && $row[$key] !== null && $row[$key] !== '') {
+                $price = floatval($row[$key]);
+                break;
+            }
+        }
 
-        return [
+        // ค้นหาจำนวนคงเหลือจากชื่อคอลัมน์ที่เป็นไปได้ทั้งหมด
+        $stock = 0;
+        foreach (['i_UnitsInStock', 'UnitsInStock', 'i_Quantity', 'Quantity', 'unitsinstock', 'stock'] as $key) {
+            if (isset($row[$key]) && $row[$key] !== null && $row[$key] !== '') {
+                $stock = intval($row[$key]);
+                break;
+            }
+        }
+
+        $result[] = [
             'i_ProductID'    => $id,
             'c_ProductName'  => $name,
             'i_CategoryID'   => $cat,
@@ -25,9 +41,9 @@ try {
             'f_Price'        => $price,
             'i_UnitsInStock' => $stock
         ];
-    }, $products);
+    }
 
-    echo json_encode($formatted, JSON_UNESCAPED_UNICODE);
+    echo json_encode($result, JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
