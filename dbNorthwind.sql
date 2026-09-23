@@ -1,3 +1,10 @@
+
+dbNorthwind (2).sql
+หน้า
+1
+/
+1
+100%
 -- phpMyAdmin SQL Dump
 -- version 5.0.2
 -- https://www.phpmyadmin.net/
@@ -20,9 +27,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `db_northwind_cpe2204`
 --
---CREATE DATABASE IF NOT EXISTS `db_northwind` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
---USE `db_northwind`;
-USE railway;
+CREATE DATABASE IF NOT EXISTS `db_northwind` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `db_northwind`;
 
 -- --------------------------------------------------------
 
@@ -1222,3 +1228,4 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+กำลังแสดง dbNorthwind (2).sql
