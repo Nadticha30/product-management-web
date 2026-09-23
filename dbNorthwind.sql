@@ -1,23 +1,12 @@
-
-dbNorthwind (2).sql
-หน้า
-1
-/
-1
-100%
 -- phpMyAdmin SQL Dump
--- version 5.0.2
--- https://www.phpmyadmin.net/
---
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 08:04 AM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.10
 
+SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,7 +14,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `db_northwind_cpe2204`
+-- Database: `db_northwind`
 --
 CREATE DATABASE IF NOT EXISTS `db_northwind` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `db_northwind`;
@@ -42,10 +31,6 @@ CREATE TABLE `tb_categories` (
   `c_CategoryName` varchar(30) NOT NULL,
   `c_Description` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `tb_categories`
---
 
 INSERT INTO `tb_categories` VALUES
 (1, 'Beverages', 'Soft drinks, coffees, teas, be'),
@@ -74,10 +59,6 @@ CREATE TABLE `tb_customers` (
   `c_postalcode` varchar(30) NOT NULL,
   `c_country` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `tb_customers`
---
 
 INSERT INTO `tb_customers` VALUES
 (1, 'Alfreds Futterkiste', 'Maria Anders', 'Obere Str. 57', 'Berlin', '12209', 'Germany'),
@@ -188,10 +169,6 @@ CREATE TABLE `tb_employees` (
   `c_Notes` varchar(80) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `tb_employees`
---
-
 INSERT INTO `tb_employees` VALUES
 (1, 'Davolio', 'Nancy', '8/12/1968', 'EmpID1.pic', 'Education includes a BA in psychology from Colorado State University. She also c'),
 (2, 'Fuller', 'Andrew', '19/2/1952', 'EmpID2.pic', 'Andrew received his BTS commercial and a Ph.D. in international marketing from t'),
@@ -207,6 +184,383 @@ INSERT INTO `tb_employees` VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tb_shippers`
+--
+
+DROP TABLE IF EXISTS `tb_shippers`;
+CREATE TABLE `tb_shippers` (
+  `i_ShipperID` int(11) NOT NULL,
+  `c_ShipperName` varchar(30) NOT NULL,
+  `c_Phone` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `tb_shippers` VALUES
+(1, 'Speedy Express', '(503) 555-9831'),
+(2, 'United Package', '(503) 555-3199'),
+(3, 'Federal Shipping', '(503) 555-9931');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tb_suppliers`
+--
+
+DROP TABLE IF EXISTS `tb_suppliers`;
+CREATE TABLE `tb_suppliers` (
+  `i_SupplierID` int(11) NOT NULL,
+  `c_SupplierName` varchar(30) NOT NULL,
+  `c_ContactName` varchar(30) NOT NULL,
+  `c_Address` varchar(30) NOT NULL,
+  `c_City` varchar(30) NOT NULL,
+  `c_PostalCode` varchar(30) NOT NULL,
+  `c_Country` varchar(30) NOT NULL,
+  `c_Phone` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `tb_suppliers` VALUES
+(1, 'Exotic Liquid', 'Charlotte Cooper', '49 Gilbert St.', 'Londona', 'EC1 4SD', 'UK', '(171) 555-2222'),
+(2, 'New Orleans Cajun Delights', 'Shelley Burke', 'P.O. Box 78934', 'New Orleans', '70117', 'USA', '(100) 555-4822'),
+(3, 'Grandma Kelly\'s Homestead', 'Regina Murphy', '707 Oxford Rd.', 'Ann Arbor', '48104', 'USA', '(313) 555-5735'),
+(4, 'Tokyo Traders', 'Yoshi Nagase', '9-8 Sekimai Musashino-shi', 'Tokyo', '100', 'Japan', '(03) 3555-5011'),
+(5, 'Cooperativa de Quesos \'Las Cab', 'Antonio del Valle Saavedra', 'Calle del Rosal 4', 'Oviedo', '33007', 'Spain', '(98) 598 76 54'),
+(6, 'Mayumi\'s', 'Mayumi Ohno', '92 Setsuko Chuo-ku', 'Osaka', '545', 'Japan', '(06) 431-7877'),
+(7, 'Pavlova, Ltd.', 'Ian Devling', '74 Rose St. Moonie Ponds', 'Melbourne', '3058', 'Australia', '(03) 444-2343'),
+(8, 'Specialty Biscuits, Ltd.', 'Peter Wilson', '29 King\'s Way', 'Manchester', 'M14 GSD', 'UK', '(161) 555-4448'),
+(9, 'PB Kn?ckebr?d AB', 'Lars Peterson', 'Kaloadagatan 13', 'G?teborg', 'S-345 67', 'Sweden', '031-987 65 43'),
+(10, 'Refrescos Americanas LTDA', 'Carlos Diaz', 'Av. das Americanas 12.890', 'S?o Paulo', '5442', 'Brazil', '(11) 555 4640'),
+(11, 'Heli S??waren GmbH & Co. KG', 'Petra Winkler', 'Tiergartenstra?e 5', 'Berlin', '10785', 'Germany', '(010) 9984510'),
+(12, 'Plutzer Lebensmittelgro?m?rkte', 'Martin Bein', 'Bogenallee 51', 'Frankfurt', '60439', 'Germany', '(069) 992755'),
+(13, 'Nord-Ost-Fisch Handelsgesellsc', 'Sven Petersen', 'Frahmredder 112a', 'Cuxhaven', '27478', 'Germany', '(04721) 8713'),
+(14, 'Formaggi Fortini s.r.l.', 'Elio Rossi', 'Viale Dante, 75', 'Ravenna', '48100', 'Italy', '(0544) 60323'),
+(15, 'Norske Meierier', 'Beate Vileid', 'Hatlevegen 5', 'Sandvika', '1320', 'Norway', '(0)2-953010'),
+(16, 'Bigfoot Breweries', 'Cheryl Saylor', '3400 - 8th Avenue Suite 210', 'Bend', '97101', 'USA', '(503) 555-9931'),
+(17, 'Svensk Sj?f?da AB', 'Michael Bj?rn', 'Brovallav?gen 231', 'Stockholm', 'S-123 45', 'Sweden', '08-123 45 67'),
+(18, 'Aux joyeux eccl?siastiques', 'Guyl?ne Nodier', '203, Rue des Francs-Bourgeois', 'Paris', '75004', 'France', '(1) 03.83.00.68'),
+(19, 'New England Seafood Cannery', 'Robb Merchant', 'Order Processing Dept. 2100 Pa', 'Boston', '2134', 'USA', '(617) 555-3267'),
+(20, 'Leka Trading', 'Chandra Leka', '471 Serangoon Loop, Suite #402', 'Singapore', '512', 'Singapore', '555-8787'),
+(21, 'Lyngbysild', 'Niels Petersen', 'Lyngbysild Fiskebakken 10', 'Lyngby', '2800', 'Denmark', '43844108'),
+(22, 'Zaanse Snoepfabriek', 'Dirk Luchte', 'Verkoop Rijnweg 22', 'Zaandam', '9999 ZZ', 'Netherlands', '(12345) 1212'),
+(23, 'Karkki Oy', 'Anne Heikkonen', 'Valtakatu 12', 'Lappeenranta', '53120', 'Finland', '(953) 10956'),
+(24, 'G\'day, Mate', 'Wendy Mackenzie', '170 Prince Edward Parade Hunte', 'Sydney', '2042', 'Australia', '(02) 555-5914'),
+(25, 'Ma Maison', 'Jean-Guy Lauzon', '2960 Rue St. Laurent', 'Montr?al', 'H1J 1C3', 'Canada', '(514) 555-9022'),
+(26, 'Pasta Buttini s.r.l.', 'Giovanni Giudici', 'Via dei Gelsomini, 153', 'Salerno', '84100', 'Italy', '(089) 6547665'),
+(27, 'Escargots Nouveaux', 'Marie Delamare', '22, rue H. Voiron', 'Montceau', '71300', 'France', '85.57.00.07'),
+(28, 'Gai p?turage', 'Eliane Noz', 'Bat. B 3, rue des Alpes', 'Annecy', '74000', 'France', '38.76.98.06'),
+(29, 'For?ts d\'?rables', 'Chantal Goulet', '148 rue Chasseur', 'Ste-Hyacinthe', 'J2S 7S8', 'Canada', '(514) 555-2955');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tb_products`
+--
+
+DROP TABLE IF EXISTS `tb_products`;
+CREATE TABLE `tb_products` (
+  `i_ProductID` int(11) NOT NULL,
+  `c_ProductName` varchar(30) NOT NULL,
+  `i_SupplierID` int(11) NOT NULL,
+  `i_CategoryID` int(11) NOT NULL,
+  `c_Unit` varchar(30) NOT NULL,
+  `i_Price` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `tb_products` VALUES
+(1, 'Chaiss', 2, 3, '10 boxes x 20 bagss', 40),
+(2, 'Chang', 1, 1, '24 - 12 oz bottles', 19),
+(3, 'Aniseed Syrup', 1, 2, '12 - 550 ml bottles', 10),
+(4, 'Chef Anton\'s Cajun Seasoning', 2, 2, '48 - 6 oz jars', 22),
+(5, 'Chef Anton\'s Gumbo Mix', 2, 2, '36 boxes', 21.35),
+(6, 'Grandma\'s Boysenberry Spread', 3, 2, '12 - 8 oz jars', 25),
+(7, 'Uncle Bob\'s Organic Dried Pear', 3, 7, '12 - 1 lb pkgs.', 30),
+(8, 'Northwoods Cranberry Sauce', 3, 2, '12 - 12 oz jars', 40),
+(9, 'Mishi Kobe Niku', 4, 6, '18 - 500 g pkgs.', 97),
+(10, 'Ikura', 4, 8, '12 - 200 ml jars', 31),
+(11, 'Queso Cabrales', 5, 4, '1 kg pkg.', 21),
+(12, 'Queso Manchego La Pastora', 5, 4, '10 - 500 g pkgs.', 38),
+(13, 'Konbu', 6, 8, '2 kg box', 6),
+(14, 'Tofu', 6, 7, '40 - 100 g pkgs.', 23.25),
+(15, 'Genen Shouyu', 6, 2, '24 - 250 ml bottles', 15.5),
+(16, 'Pavlova', 7, 3, '32 - 500 g boxes', 17.45),
+(17, 'Alice Mutton', 7, 6, '20 - 1 kg tins', 39),
+(18, 'Carnarvon Tigers', 7, 8, '16 kg pkg.', 62.5),
+(19, 'Teatime Chocolate Biscuits', 8, 3, '10 boxes x 12 pieces', 9.2),
+(20, 'Sir Rodney\'s Marmalade', 8, 3, '30 gift boxes', 81),
+(21, 'Sir Rodney\'s Scones', 8, 3, '24 pkgs. x 4 pieces', 10),
+(22, 'Gustaf\'s Kn?ckebr?d', 9, 5, '24 - 500 g pkgs.', 21),
+(23, 'Tunnbr?d', 9, 5, '12 - 250 g pkgs.', 9),
+(24, 'Guaran? Fant?stica', 10, 1, '12 - 355 ml cans', 4.5),
+(25, 'NuNuCa Nu?-Nougat-Creme', 11, 3, '20 - 450 g glasses', 14),
+(26, 'Gumb?r Gummib?rchen', 11, 3, '100 - 250 g bags', 31.23),
+(27, 'Schoggi Schokolade', 11, 3, '100 - 100 g pieces', 43.9),
+(28, 'R?ssle Sauerkraut', 12, 7, '25 - 825 g cans', 45.6),
+(29, 'Th?ringer Rostbratwurst', 12, 6, '50 bags x 30 sausgs.', 123.79),
+(30, 'Nord-Ost Matjeshering', 13, 8, '10 - 200 g glasses', 25.89),
+(31, 'Gorgonzola Telino', 14, 4, '12 - 100 g pkgs', 12.5),
+(32, 'Mascarpone Fabioli', 14, 4, '24 - 200 g pkgs.', 32),
+(33, 'Geitost', 15, 4, '500 g', 2.5),
+(34, 'Sasquatch Ale', 16, 1, '24 - 12 oz bottles', 14),
+(35, 'Steeleye Stout', 16, 1, '24 - 12 oz bottles', 18),
+(36, 'Inlagd Sill', 17, 8, '24 - 250 g jars', 19),
+(37, 'Gravad lax', 17, 8, '12 - 500 g pkgs.', 26),
+(38, 'C?te de Blaye', 18, 1, '12 - 75 cl bottles', 263.5),
+(39, 'Chartreuse verte', 18, 1, '750 cc per bottle', 18),
+(40, 'Boston Crab Meat', 19, 8, '24 - 4 oz tins', 18.4),
+(41, 'Jack\'s New England Clam Chowde', 19, 8, '12 - 12 oz cans', 9.65),
+(42, 'Singaporean Hokkien Fried Mee', 20, 5, '32 - 1 kg pkgs.', 14),
+(43, 'Ipoh Coffeessss', 4, 8, '200 - 500 g tins', 600),
+(44, 'Gula Malacca', 20, 2, '20 - 2 kg bags', 19.45),
+(45, 'R?gede sild', 21, 8, '1k pkg.', 9.5),
+(46, 'Spegesild', 21, 8, '4 - 450 g glasses', 12),
+(47, 'Zaanse koeken', 22, 3, '10 - 4 oz boxes', 9.5),
+(48, 'Chocolade', 22, 3, '10 pkgs.', 12.75),
+(49, 'Maxilaku', 23, 3, '24 - 50 g pkgs.', 20),
+(50, 'Valkoinen suklaa', 23, 3, '12 - 100 g bars', 16.25),
+(51, 'Manjimup Dried Apples', 24, 7, '50 - 300 g pkgs.', 53),
+(52, 'Filo Mix', 24, 5, '16 - 2 kg boxes', 7),
+(53, 'Perth Pasties', 24, 6, '48 pieces', 32.8),
+(54, 'Tourti?re', 25, 6, '16 pies', 7.45),
+(55, 'P?t? chinois', 25, 6, '24 boxes x 2 pies', 24),
+(56, 'Gnocchi di nonna Alice', 26, 5, '24 - 250 g pkgs.', 38),
+(57, 'Ravioli Angelo', 26, 5, '24 - 250 g pkgs.', 19.5),
+(58, 'Escargots de Bourgogne', 27, 8, '24 pieces', 13.25),
+(59, 'Raclette Courdavault', 28, 4, '5 kg pkg.', 55),
+(60, 'Camembert Pierrot', 28, 4, '15 - 300 g rounds', 34),
+(61, 'Sirop d\'?rable', 29, 2, '24 - 500 ml bottles', 28.5),
+(62, 'Tarte au sucre', 29, 3, '48 pies', 49.3),
+(63, 'Vegie-spread', 7, 2, '15 - 625 g jars', 43.9),
+(64, 'Wimmers gute Semmelkn?del', 12, 5, '20 bags x 4 pieces', 33.25),
+(65, 'Louisiana Fiery Hot Pepper Sau', 2, 2, '32 - 8 oz bottles', 21.05),
+(66, 'Louisiana Hot Spiced Okra', 2, 2, '24 - 8 oz jars', 17),
+(67, 'Laughing Lumberjack Lager', 16, 1, '24 - 12 oz bottles', 14),
+(68, 'Scottish Longbreads', 8, 3, '10 boxes x 8 pieces', 12.5),
+(69, 'Gudbrandsdalsost', 15, 4, '10 kg pkg.', 36),
+(70, 'Outback Lager', 7, 1, '24 - 355 ml bottles', 15),
+(71, 'Fl?temysost', 15, 4, '10 - 500 g pkgs.', 21.5),
+(72, 'Mozzarella di Giovanni', 14, 4, '24 - 200 g pkgs.', 34.8),
+(73, 'R?d Kaviar', 17, 8, '24 - 150 g jars', 15),
+(74, 'Longlife Tofu', 4, 7, '5 kg pkg.', 10),
+(75, 'Rh?nbr?u Klosterbier', 12, 1, '24 - 0.5 l bottles', 7.75),
+(76, 'Lakkalik??ri', 23, 1, '500 ml', 18),
+(77, 'Original Frankfurter gr?ne So?', 12, 2, '12 boxes', 13),
+(101, 'XXX', 1, 9, 'UUUU', 1000), -- แก้ไข SupplierID จาก 99 เป็น 1 และ CategoryID จาก 98 เป็น 9
+(102, 'NIKE', 2, 9, 'box', 25000);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tb_orders`
+--
+
+DROP TABLE IF EXISTS `tb_orders`;
+CREATE TABLE `tb_orders` (
+  `i_OrderID` int(11) NOT NULL,
+  `i_CustomerID` int(11) NOT NULL,
+  `i_EmployeeID` int(11) NOT NULL,
+  `c_OrderDate` varchar(30) NOT NULL,
+  `i_ShipperID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `tb_orders` VALUES
+(10248, 90, 5, '4/7/1996', 3),
+(10249, 81, 6, '5/7/1996', 1),
+(10250, 34, 4, '8/7/1996', 2),
+(10251, 84, 3, '8/7/1996', 1),
+(10252, 76, 4, '9/7/1996', 2),
+(10253, 34, 3, '10/7/1996', 2),
+(10254, 14, 5, '11/7/1996', 2),
+(10255, 68, 9, '12/7/1996', 3),
+(10256, 88, 3, '15/7/1996', 2),
+(10257, 35, 4, '16/7/1996', 3),
+(10258, 20, 1, '17/7/1996', 1),
+(10259, 13, 4, '18/7/1996', 3),
+(10260, 55, 4, '19/7/1996', 1),
+(10261, 61, 4, '19/7/1996', 2),
+(10262, 65, 8, '22/7/1996', 3),
+(10263, 20, 9, '23/7/1996', 3),
+(10264, 24, 6, '24/7/1996', 3),
+(10265, 7, 2, '25/7/1996', 1),
+(10266, 87, 3, '26/7/1996', 3),
+(10267, 25, 4, '29/7/1996', 1),
+(10268, 33, 8, '30/7/1996', 3),
+(10269, 89, 5, '31/7/1996', 1),
+(10270, 87, 1, '1/8/1996', 1),
+(10271, 75, 6, '1/8/1996', 2),
+(10272, 65, 6, '2/8/1996', 2),
+(10273, 63, 3, '5/8/1996', 3),
+(10274, 85, 6, '6/8/1996', 1),
+(10275, 49, 1, '7/8/1996', 1),
+(10276, 80, 8, '8/8/1996', 3),
+(10277, 52, 2, '9/8/1996', 3),
+(10278, 5, 8, '12/8/1996', 2),
+(10279, 44, 8, '13/8/1996', 2),
+(10280, 5, 2, '14/8/1996', 1),
+(10281, 69, 4, '14/8/1996', 1),
+(10282, 69, 4, '15/8/1996', 1),
+(10283, 46, 3, '16/8/1996', 3),
+(10284, 44, 4, '19/8/1996', 1),
+(10285, 63, 1, '20/8/1996', 2),
+(10286, 63, 8, '21/8/1996', 3),
+(10287, 67, 8, '22/8/1996', 3),
+(10288, 66, 4, '23/8/1996', 1),
+(10289, 11, 7, '26/8/1996', 3),
+(10290, 15, 8, '27/8/1996', 1),
+(10291, 61, 6, '27/8/1996', 2),
+(10292, 81, 1, '28/8/1996', 2),
+(10293, 80, 1, '29/8/1996', 3),
+(10294, 65, 4, '30/8/1996', 2),
+(10295, 85, 2, '2/9/1996', 2),
+(10296, 46, 6, '3/9/1996', 1),
+(10297, 7, 5, '4/9/1996', 2),
+(10298, 37, 6, '5/9/1996', 2),
+(10299, 67, 4, '6/9/1996', 2),
+(10300, 49, 2, '9/9/1996', 2),
+(10301, 86, 8, '9/9/1996', 2),
+(10302, 76, 4, '10/9/1996', 2),
+(10303, 30, 7, '11/9/1996', 2),
+(10304, 80, 1, '12/9/1996', 2),
+(10305, 55, 8, '13/9/1996', 3),
+(10306, 69, 1, '16/9/1996', 3),
+(10307, 48, 2, '17/9/1996', 2),
+(10308, 2, 7, '18/9/1996', 3),
+(10309, 37, 3, '19/9/1996', 1),
+(10310, 77, 8, '20/9/1996', 2),
+(10311, 18, 1, '20/9/1996', 3),
+(10312, 86, 2, '23/9/1996', 2),
+(10313, 63, 2, '24/9/1996', 2),
+(10314, 65, 1, '25/9/1996', 2),
+(10315, 38, 4, '26/9/1996', 2),
+(10316, 65, 1, '27/9/1996', 3),
+(10317, 48, 6, '30/9/1996', 1),
+(10318, 38, 8, '1/10/1996', 2),
+(10319, 80, 7, '2/10/1996', 3),
+(10320, 87, 5, '3/10/1996', 3),
+(10321, 38, 3, '3/10/1996', 2),
+(10322, 58, 7, '4/10/1996', 3),
+(10323, 39, 4, '7/10/1996', 1),
+(10324, 71, 9, '8/10/1996', 1),
+(10325, 39, 1, '9/10/1996', 3),
+(10326, 8, 4, '10/10/1996', 2),
+(10327, 24, 2, '11/10/1996', 1),
+(10328, 28, 4, '14/10/1996', 3),
+(10329, 75, 4, '15/10/1996', 2),
+(10330, 46, 3, '16/10/1996', 1),
+(10331, 9, 9, '16/10/1996', 1),
+(10332, 51, 3, '17/10/1996', 2),
+(10333, 87, 5, '18/10/1996', 3),
+(10334, 84, 8, '21/10/1996', 2),
+(10335, 37, 7, '22/10/1996', 2),
+(10336, 60, 7, '23/10/1996', 2),
+(10337, 25, 4, '24/10/1996', 3),
+(10338, 55, 4, '25/10/1996', 3),
+(10339, 51, 2, '28/10/1996', 2),
+(10340, 9, 1, '29/10/1996', 3),
+(10341, 73, 7, '29/10/1996', 3),
+(10342, 25, 4, '30/10/1996', 2),
+(10343, 44, 4, '31/10/1996', 1),
+(10344, 89, 4, '1/11/1996', 2),
+(10345, 63, 2, '4/11/1996', 2),
+(10346, 65, 3, '5/11/1996', 3),
+(10347, 21, 4, '6/11/1996', 3),
+(10348, 86, 4, '7/11/1996', 2),
+(10349, 75, 7, '8/11/1996', 1),
+(10350, 41, 6, '11/11/1996', 2),
+(10351, 20, 1, '11/11/1996', 1),
+(10352, 28, 3, '12/11/1996', 3),
+(10353, 59, 7, '13/11/1996', 3),
+(10354, 58, 8, '14/11/1996', 3),
+(10355, 4, 6, '15/11/1996', 1),
+(10356, 86, 6, '18/11/1996', 2),
+(10357, 46, 1, '19/11/1996', 3),
+(10358, 41, 5, '20/11/1996', 1),
+(10359, 72, 5, '21/11/1996', 3),
+(10360, 7, 4, '22/11/1996', 3),
+(10361, 63, 1, '22/11/1996', 2),
+(10362, 9, 3, '25/11/1996', 1),
+(10363, 17, 4, '26/11/1996', 3),
+(10364, 19, 1, '26/11/1996', 1),
+(10365, 3, 3, '27/11/1996', 2),
+(10366, 29, 8, '28/11/1996', 2),
+(10367, 83, 7, '28/11/1996', 3),
+(10368, 20, 2, '29/11/1996', 2),
+(10369, 75, 8, '2/12/1996', 2),
+(10370, 14, 6, '3/12/1996', 2),
+(10371, 41, 1, '3/12/1996', 1),
+(10372, 62, 5, '4/12/1996', 2),
+(10373, 37, 4, '5/12/1996', 3),
+(10374, 91, 1, '5/12/1996', 3),
+(10375, 36, 3, '6/12/1996', 2),
+(10376, 51, 1, '9/12/1996', 2),
+(10377, 72, 1, '9/12/1996', 3),
+(10378, 24, 5, '10/12/1996', 3),
+(10379, 61, 2, '11/12/1996', 1),
+(10380, 37, 8, '12/12/1996', 3),
+(10381, 46, 3, '12/12/1996', 3),
+(10382, 20, 4, '13/12/1996', 1),
+(10383, 4, 8, '16/12/1996', 3),
+(10384, 5, 3, '16/12/1996', 3),
+(10385, 75, 1, '17/12/1996', 2),
+(10386, 21, 9, '18/12/1996', 3),
+(10387, 70, 1, '18/12/1996', 2),
+(10388, 72, 2, '19/12/1996', 1),
+(10389, 10, 4, '20/12/1996', 2),
+(10390, 20, 6, '23/12/1996', 1),
+(10391, 17, 3, '23/12/1996', 3),
+(10392, 59, 2, '24/12/1996', 3),
+(10393, 71, 1, '25/12/1996', 3),
+(10394, 36, 1, '25/12/1996', 3),
+(10395, 35, 6, '26/12/1996', 1),
+(10396, 25, 1, '27/12/1996', 3),
+(10397, 60, 5, '27/12/1996', 1),
+(10398, 71, 2, '30/12/1996', 3),
+(10399, 83, 8, '31/12/1996', 3),
+(10400, 19, 1, '1/1/1997', 3),
+(10401, 65, 1, '1/1/1997', 1),
+(10402, 20, 8, '2/1/1997', 2),
+(10403, 20, 4, '3/1/1997', 3),
+(10404, 49, 2, '3/1/1997', 1),
+(10405, 47, 1, '6/1/1997', 1),
+(10406, 62, 7, '7/1/1997', 1),
+(10407, 56, 2, '7/1/1997', 2),
+(10408, 23, 8, '8/1/1997', 1),
+(10409, 54, 3, '9/1/1997', 1),
+(10410, 10, 3, '10/1/1997', 3),
+(10411, 10, 9, '10/1/1997', 3),
+(10412, 87, 8, '13/1/1997', 2),
+(10413, 41, 3, '14/1/1997', 2),
+(10414, 21, 2, '14/1/1997', 3),
+(10415, 36, 3, '15/1/1997', 1),
+(10416, 87, 8, '16/1/1997', 3),
+(10417, 73, 4, '16/1/1997', 3),
+(10418, 63, 4, '17/1/1997', 1),
+(10419, 68, 4, '20/1/1997', 2),
+(10420, 88, 3, '21/1/1997', 1),
+(10421, 61, 8, '21/1/1997', 1),
+(10422, 27, 2, '22/1/1997', 1),
+(10423, 31, 6, '23/1/1997', 3),
+(10424, 51, 7, '23/1/1997', 2),
+(10425, 41, 6, '24/1/1997', 2),
+(10426, 29, 4, '27/1/1997', 1),
+(10427, 59, 4, '27/1/1997', 2),
+(10428, 66, 7, '28/1/1997', 1),
+(10429, 37, 3, '29/1/1997', 2),
+(10430, 20, 4, '30/1/1997', 1),
+(10431, 10, 4, '30/1/1997', 2),
+(10432, 75, 3, '31/1/1997', 2),
+(10433, 60, 3, '3/2/1997', 3),
+(10434, 24, 3, '3/2/1997', 2),
+(10435, 16, 8, '4/2/1997', 2),
+(10436, 7, 3, '5/2/1997', 2),
+(10437, 87, 8, '5/2/1997', 1),
+(10438, 79, 3, '6/2/1997', 2),
+(10439, 51, 6, '7/2/1997', 3),
+(10440, 71, 4, '10/2/1997', 2),
+(10441, 55, 3, '10/2/1997', 2),
+(10442, 20, 3, '11/2/1997', 2),
+(10443, 66, 8, '12/2/1997', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tb_orderdetails`
 --
 
@@ -217,10 +571,6 @@ CREATE TABLE `tb_orderdetails` (
   `i_ProductID` int(11) NOT NULL,
   `i_Quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `tb_orderdetails`
---
 
 INSERT INTO `tb_orderdetails` VALUES
 (1, 10248, 11, 12),
@@ -745,346 +1095,6 @@ INSERT INTO `tb_orderdetails` VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tb_orders`
---
-
-DROP TABLE IF EXISTS `tb_orders`;
-CREATE TABLE `tb_orders` (
-  `i_OrderID` int(11) NOT NULL,
-  `i_CustomerID` int(11) NOT NULL,
-  `i_EmployeeID` int(11) NOT NULL,
-  `c_OrderDate` varchar(30) NOT NULL,
-  `i_ShipperID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `tb_orders`
---
-
-INSERT INTO `tb_orders` VALUES
-(10248, 90, 5, '4/7/1996', 3),
-(10249, 81, 6, '5/7/1996', 1),
-(10250, 34, 4, '8/7/1996', 2),
-(10251, 84, 3, '8/7/1996', 1),
-(10252, 76, 4, '9/7/1996', 2),
-(10253, 34, 3, '10/7/1996', 2),
-(10254, 14, 5, '11/7/1996', 2),
-(10255, 68, 9, '12/7/1996', 3),
-(10256, 88, 3, '15/7/1996', 2),
-(10257, 35, 4, '16/7/1996', 3),
-(10258, 20, 1, '17/7/1996', 1),
-(10259, 13, 4, '18/7/1996', 3),
-(10260, 55, 4, '19/7/1996', 1),
-(10261, 61, 4, '19/7/1996', 2),
-(10262, 65, 8, '22/7/1996', 3),
-(10263, 20, 9, '23/7/1996', 3),
-(10264, 24, 6, '24/7/1996', 3),
-(10265, 7, 2, '25/7/1996', 1),
-(10266, 87, 3, '26/7/1996', 3),
-(10267, 25, 4, '29/7/1996', 1),
-(10268, 33, 8, '30/7/1996', 3),
-(10269, 89, 5, '31/7/1996', 1),
-(10270, 87, 1, '1/8/1996', 1),
-(10271, 75, 6, '1/8/1996', 2),
-(10272, 65, 6, '2/8/1996', 2),
-(10273, 63, 3, '5/8/1996', 3),
-(10274, 85, 6, '6/8/1996', 1),
-(10275, 49, 1, '7/8/1996', 1),
-(10276, 80, 8, '8/8/1996', 3),
-(10277, 52, 2, '9/8/1996', 3),
-(10278, 5, 8, '12/8/1996', 2),
-(10279, 44, 8, '13/8/1996', 2),
-(10280, 5, 2, '14/8/1996', 1),
-(10281, 69, 4, '14/8/1996', 1),
-(10282, 69, 4, '15/8/1996', 1),
-(10283, 46, 3, '16/8/1996', 3),
-(10284, 44, 4, '19/8/1996', 1),
-(10285, 63, 1, '20/8/1996', 2),
-(10286, 63, 8, '21/8/1996', 3),
-(10287, 67, 8, '22/8/1996', 3),
-(10288, 66, 4, '23/8/1996', 1),
-(10289, 11, 7, '26/8/1996', 3),
-(10290, 15, 8, '27/8/1996', 1),
-(10291, 61, 6, '27/8/1996', 2),
-(10292, 81, 1, '28/8/1996', 2),
-(10293, 80, 1, '29/8/1996', 3),
-(10294, 65, 4, '30/8/1996', 2),
-(10295, 85, 2, '2/9/1996', 2),
-(10296, 46, 6, '3/9/1996', 1),
-(10297, 7, 5, '4/9/1996', 2),
-(10298, 37, 6, '5/9/1996', 2),
-(10299, 67, 4, '6/9/1996', 2),
-(10300, 49, 2, '9/9/1996', 2),
-(10301, 86, 8, '9/9/1996', 2),
-(10302, 76, 4, '10/9/1996', 2),
-(10303, 30, 7, '11/9/1996', 2),
-(10304, 80, 1, '12/9/1996', 2),
-(10305, 55, 8, '13/9/1996', 3),
-(10306, 69, 1, '16/9/1996', 3),
-(10307, 48, 2, '17/9/1996', 2),
-(10308, 2, 7, '18/9/1996', 3),
-(10309, 37, 3, '19/9/1996', 1),
-(10310, 77, 8, '20/9/1996', 2),
-(10311, 18, 1, '20/9/1996', 3),
-(10312, 86, 2, '23/9/1996', 2),
-(10313, 63, 2, '24/9/1996', 2),
-(10314, 65, 1, '25/9/1996', 2),
-(10315, 38, 4, '26/9/1996', 2),
-(10316, 65, 1, '27/9/1996', 3),
-(10317, 48, 6, '30/9/1996', 1),
-(10318, 38, 8, '1/10/1996', 2),
-(10319, 80, 7, '2/10/1996', 3),
-(10320, 87, 5, '3/10/1996', 3),
-(10321, 38, 3, '3/10/1996', 2),
-(10322, 58, 7, '4/10/1996', 3),
-(10323, 39, 4, '7/10/1996', 1),
-(10324, 71, 9, '8/10/1996', 1),
-(10325, 39, 1, '9/10/1996', 3),
-(10326, 8, 4, '10/10/1996', 2),
-(10327, 24, 2, '11/10/1996', 1),
-(10328, 28, 4, '14/10/1996', 3),
-(10329, 75, 4, '15/10/1996', 2),
-(10330, 46, 3, '16/10/1996', 1),
-(10331, 9, 9, '16/10/1996', 1),
-(10332, 51, 3, '17/10/1996', 2),
-(10333, 87, 5, '18/10/1996', 3),
-(10334, 84, 8, '21/10/1996', 2),
-(10335, 37, 7, '22/10/1996', 2),
-(10336, 60, 7, '23/10/1996', 2),
-(10337, 25, 4, '24/10/1996', 3),
-(10338, 55, 4, '25/10/1996', 3),
-(10339, 51, 2, '28/10/1996', 2),
-(10340, 9, 1, '29/10/1996', 3),
-(10341, 73, 7, '29/10/1996', 3),
-(10342, 25, 4, '30/10/1996', 2),
-(10343, 44, 4, '31/10/1996', 1),
-(10344, 89, 4, '1/11/1996', 2),
-(10345, 63, 2, '4/11/1996', 2),
-(10346, 65, 3, '5/11/1996', 3),
-(10347, 21, 4, '6/11/1996', 3),
-(10348, 86, 4, '7/11/1996', 2),
-(10349, 75, 7, '8/11/1996', 1),
-(10350, 41, 6, '11/11/1996', 2),
-(10351, 20, 1, '11/11/1996', 1),
-(10352, 28, 3, '12/11/1996', 3),
-(10353, 59, 7, '13/11/1996', 3),
-(10354, 58, 8, '14/11/1996', 3),
-(10355, 4, 6, '15/11/1996', 1),
-(10356, 86, 6, '18/11/1996', 2),
-(10357, 46, 1, '19/11/1996', 3),
-(10358, 41, 5, '20/11/1996', 1),
-(10359, 72, 5, '21/11/1996', 3),
-(10360, 7, 4, '22/11/1996', 3),
-(10361, 63, 1, '22/11/1996', 2),
-(10362, 9, 3, '25/11/1996', 1),
-(10363, 17, 4, '26/11/1996', 3),
-(10364, 19, 1, '26/11/1996', 1),
-(10365, 3, 3, '27/11/1996', 2),
-(10366, 29, 8, '28/11/1996', 2),
-(10367, 83, 7, '28/11/1996', 3),
-(10368, 20, 2, '29/11/1996', 2),
-(10369, 75, 8, '2/12/1996', 2),
-(10370, 14, 6, '3/12/1996', 2),
-(10371, 41, 1, '3/12/1996', 1),
-(10372, 62, 5, '4/12/1996', 2),
-(10373, 37, 4, '5/12/1996', 3),
-(10374, 91, 1, '5/12/1996', 3),
-(10375, 36, 3, '6/12/1996', 2),
-(10376, 51, 1, '9/12/1996', 2),
-(10377, 72, 1, '9/12/1996', 3),
-(10378, 24, 5, '10/12/1996', 3),
-(10379, 61, 2, '11/12/1996', 1),
-(10380, 37, 8, '12/12/1996', 3),
-(10381, 46, 3, '12/12/1996', 3),
-(10382, 20, 4, '13/12/1996', 1),
-(10383, 4, 8, '16/12/1996', 3),
-(10384, 5, 3, '16/12/1996', 3),
-(10385, 75, 1, '17/12/1996', 2),
-(10386, 21, 9, '18/12/1996', 3),
-(10387, 70, 1, '18/12/1996', 2),
-(10388, 72, 2, '19/12/1996', 1),
-(10389, 10, 4, '20/12/1996', 2),
-(10390, 20, 6, '23/12/1996', 1),
-(10391, 17, 3, '23/12/1996', 3),
-(10392, 59, 2, '24/12/1996', 3),
-(10393, 71, 1, '25/12/1996', 3),
-(10394, 36, 1, '25/12/1996', 3),
-(10395, 35, 6, '26/12/1996', 1),
-(10396, 25, 1, '27/12/1996', 3),
-(10397, 60, 5, '27/12/1996', 1),
-(10398, 71, 2, '30/12/1996', 3),
-(10399, 83, 8, '31/12/1996', 3),
-(10400, 19, 1, '1/1/1997', 3),
-(10401, 65, 1, '1/1/1997', 1),
-(10402, 20, 8, '2/1/1997', 2),
-(10403, 20, 4, '3/1/1997', 3),
-(10404, 49, 2, '3/1/1997', 1),
-(10405, 47, 1, '6/1/1997', 1),
-(10406, 62, 7, '7/1/1997', 1),
-(10407, 56, 2, '7/1/1997', 2),
-(10408, 23, 8, '8/1/1997', 1),
-(10409, 54, 3, '9/1/1997', 1),
-(10410, 10, 3, '10/1/1997', 3),
-(10411, 10, 9, '10/1/1997', 3),
-(10412, 87, 8, '13/1/1997', 2),
-(10413, 41, 3, '14/1/1997', 2),
-(10414, 21, 2, '14/1/1997', 3),
-(10415, 36, 3, '15/1/1997', 1),
-(10416, 87, 8, '16/1/1997', 3),
-(10417, 73, 4, '16/1/1997', 3),
-(10418, 63, 4, '17/1/1997', 1),
-(10419, 68, 4, '20/1/1997', 2),
-(10420, 88, 3, '21/1/1997', 1),
-(10421, 61, 8, '21/1/1997', 1),
-(10422, 27, 2, '22/1/1997', 1),
-(10423, 31, 6, '23/1/1997', 3),
-(10424, 51, 7, '23/1/1997', 2),
-(10425, 41, 6, '24/1/1997', 2),
-(10426, 29, 4, '27/1/1997', 1),
-(10427, 59, 4, '27/1/1997', 2),
-(10428, 66, 7, '28/1/1997', 1),
-(10429, 37, 3, '29/1/1997', 2),
-(10430, 20, 4, '30/1/1997', 1),
-(10431, 10, 4, '30/1/1997', 2),
-(10432, 75, 3, '31/1/1997', 2),
-(10433, 60, 3, '3/2/1997', 3),
-(10434, 24, 3, '3/2/1997', 2),
-(10435, 16, 8, '4/2/1997', 2),
-(10436, 7, 3, '5/2/1997', 2),
-(10437, 87, 8, '5/2/1997', 1),
-(10438, 79, 3, '6/2/1997', 2),
-(10439, 51, 6, '7/2/1997', 3),
-(10440, 71, 4, '10/2/1997', 2),
-(10441, 55, 3, '10/2/1997', 2),
-(10442, 20, 3, '11/2/1997', 2),
-(10443, 66, 8, '12/2/1997', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tb_products`
---
-
-DROP TABLE IF EXISTS `tb_products`;
-CREATE TABLE `tb_products` (
-  `i_ProductID` int(11) NOT NULL,
-  `c_ProductName` varchar(30) NOT NULL,
-  `i_SupplierID` int(11) NOT NULL,
-  `i_CategoryID` int(11) NOT NULL,
-  `c_Unit` varchar(30) NOT NULL,
-  `i_Price` float NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `tb_products`
---
-
-INSERT INTO `tb_products` VALUES
-(1, 'Chaiss', 2, 3, '10 boxes x 20 bagss', 40),
-(2, 'Chang', 1, 1, '24 - 12 oz bottles', 19),
-(3, 'Aniseed Syrup', 1, 2, '12 - 550 ml bottles', 10),
-(4, 'Chef Anton\'s Cajun Seasoning', 2, 2, '48 - 6 oz jars', 22),
-(5, 'Chef Anton\'s Gumbo Mix', 2, 2, '36 boxes', 21.35),
-(6, 'Grandma\'s Boysenberry Spread', 3, 2, '12 - 8 oz jars', 25),
-(7, 'Uncle Bob\'s Organic Dried Pear', 3, 7, '12 - 1 lb pkgs.', 30),
-(8, 'Northwoods Cranberry Sauce', 3, 2, '12 - 12 oz jars', 40),
-(9, 'Mishi Kobe Niku', 4, 6, '18 - 500 g pkgs.', 97),
-(10, 'Ikura', 4, 8, '12 - 200 ml jars', 31),
-(11, 'Queso Cabrales', 5, 4, '1 kg pkg.', 21),
-(12, 'Queso Manchego La Pastora', 5, 4, '10 - 500 g pkgs.', 38),
-(13, 'Konbu', 6, 8, '2 kg box', 6),
-(14, 'Tofu', 6, 7, '40 - 100 g pkgs.', 23.25),
-(15, 'Genen Shouyu', 6, 2, '24 - 250 ml bottles', 15.5),
-(16, 'Pavlova', 7, 3, '32 - 500 g boxes', 17.45),
-(17, 'Alice Mutton', 7, 6, '20 - 1 kg tins', 39),
-(18, 'Carnarvon Tigers', 7, 8, '16 kg pkg.', 62.5),
-(19, 'Teatime Chocolate Biscuits', 8, 3, '10 boxes x 12 pieces', 9.2),
-(20, 'Sir Rodney\'s Marmalade', 8, 3, '30 gift boxes', 81),
-(21, 'Sir Rodney\'s Scones', 8, 3, '24 pkgs. x 4 pieces', 10),
-(22, 'Gustaf\'s Kn?ckebr?d', 9, 5, '24 - 500 g pkgs.', 21),
-(23, 'Tunnbr?d', 9, 5, '12 - 250 g pkgs.', 9),
-(24, 'Guaran? Fant?stica', 10, 1, '12 - 355 ml cans', 4.5),
-(25, 'NuNuCa Nu?-Nougat-Creme', 11, 3, '20 - 450 g glasses', 14),
-(26, 'Gumb?r Gummib?rchen', 11, 3, '100 - 250 g bags', 31.23),
-(27, 'Schoggi Schokolade', 11, 3, '100 - 100 g pieces', 43.9),
-(28, 'R?ssle Sauerkraut', 12, 7, '25 - 825 g cans', 45.6),
-(29, 'Th?ringer Rostbratwurst', 12, 6, '50 bags x 30 sausgs.', 123.79),
-(30, 'Nord-Ost Matjeshering', 13, 8, '10 - 200 g glasses', 25.89),
-(31, 'Gorgonzola Telino', 14, 4, '12 - 100 g pkgs', 12.5),
-(32, 'Mascarpone Fabioli', 14, 4, '24 - 200 g pkgs.', 32),
-(33, 'Geitost', 15, 4, '500 g', 2.5),
-(34, 'Sasquatch Ale', 16, 1, '24 - 12 oz bottles', 14),
-(35, 'Steeleye Stout', 16, 1, '24 - 12 oz bottles', 18),
-(36, 'Inlagd Sill', 17, 8, '24 - 250 g jars', 19),
-(37, 'Gravad lax', 17, 8, '12 - 500 g pkgs.', 26),
-(38, 'C?te de Blaye', 18, 1, '12 - 75 cl bottles', 263.5),
-(39, 'Chartreuse verte', 18, 1, '750 cc per bottle', 18),
-(40, 'Boston Crab Meat', 19, 8, '24 - 4 oz tins', 18.4),
-(41, 'Jack\'s New England Clam Chowde', 19, 8, '12 - 12 oz cans', 9.65),
-(42, 'Singaporean Hokkien Fried Mee', 20, 5, '32 - 1 kg pkgs.', 14),
-(43, 'Ipoh Coffeessss', 4, 8, '200 - 500 g tins', 600),
-(44, 'Gula Malacca', 20, 2, '20 - 2 kg bags', 19.45),
-(45, 'R?gede sild', 21, 8, '1k pkg.', 9.5),
-(46, 'Spegesild', 21, 8, '4 - 450 g glasses', 12),
-(47, 'Zaanse koeken', 22, 3, '10 - 4 oz boxes', 9.5),
-(48, 'Chocolade', 22, 3, '10 pkgs.', 12.75),
-(49, 'Maxilaku', 23, 3, '24 - 50 g pkgs.', 20),
-(50, 'Valkoinen suklaa', 23, 3, '12 - 100 g bars', 16.25),
-(51, 'Manjimup Dried Apples', 24, 7, '50 - 300 g pkgs.', 53),
-(52, 'Filo Mix', 24, 5, '16 - 2 kg boxes', 7),
-(53, 'Perth Pasties', 24, 6, '48 pieces', 32.8),
-(54, 'Tourti?re', 25, 6, '16 pies', 7.45),
-(55, 'P?t? chinois', 25, 6, '24 boxes x 2 pies', 24),
-(56, 'Gnocchi di nonna Alice', 26, 5, '24 - 250 g pkgs.', 38),
-(57, 'Ravioli Angelo', 26, 5, '24 - 250 g pkgs.', 19.5),
-(58, 'Escargots de Bourgogne', 27, 8, '24 pieces', 13.25),
-(59, 'Raclette Courdavault', 28, 4, '5 kg pkg.', 55),
-(60, 'Camembert Pierrot', 28, 4, '15 - 300 g rounds', 34),
-(61, 'Sirop d\'?rable', 29, 2, '24 - 500 ml bottles', 28.5),
-(62, 'Tarte au sucre', 29, 3, '48 pies', 49.3),
-(63, 'Vegie-spread', 7, 2, '15 - 625 g jars', 43.9),
-(64, 'Wimmers gute Semmelkn?del', 12, 5, '20 bags x 4 pieces', 33.25),
-(65, 'Louisiana Fiery Hot Pepper Sau', 2, 2, '32 - 8 oz bottles', 21.05),
-(66, 'Louisiana Hot Spiced Okra', 2, 2, '24 - 8 oz jars', 17),
-(67, 'Laughing Lumberjack Lager', 16, 1, '24 - 12 oz bottles', 14),
-(68, 'Scottish Longbreads', 8, 3, '10 boxes x 8 pieces', 12.5),
-(69, 'Gudbrandsdalsost', 15, 4, '10 kg pkg.', 36),
-(70, 'Outback Lager', 7, 1, '24 - 355 ml bottles', 15),
-(71, 'Fl?temysost', 15, 4, '10 - 500 g pkgs.', 21.5),
-(72, 'Mozzarella di Giovanni', 14, 4, '24 - 200 g pkgs.', 34.8),
-(73, 'R?d Kaviar', 17, 8, '24 - 150 g jars', 15),
-(74, 'Longlife Tofu', 4, 7, '5 kg pkg.', 10),
-(75, 'Rh?nbr?u Klosterbier', 12, 1, '24 - 0.5 l bottles', 7.75),
-(76, 'Lakkalik??ri', 23, 1, '500 ml', 18),
-(77, 'Original Frankfurter gr?ne So?', 12, 2, '12 boxes', 13),
-(101, 'XXX', 99, 98, 'UUUU', 1000),
-(102, 'NIKE', 2, 9, 'box', 25000);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tb_shippers`
---
-
-DROP TABLE IF EXISTS `tb_shippers`;
-CREATE TABLE `tb_shippers` (
-  `i_ShipperID` int(11) NOT NULL,
-  `c_ShipperName` varchar(30) NOT NULL,
-  `c_Phone` varchar(30) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `tb_shippers`
---
-
-INSERT INTO `tb_shippers` VALUES
-(1, 'Speedy Express', '(503) 555-9831'),
-(2, 'United Package', '(503) 555-3199'),
-(3, 'Federal Shipping', '(503) 555-9931');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `tb_student`
 --
 
@@ -1096,136 +1106,62 @@ CREATE TABLE `tb_student` (
   `d_stu_hbd` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `tb_student`
---
-
 INSERT INTO `tb_student` VALUES
 ('46554664', 'dfsdfdsf', 'gfsdfdsfds', '2021-02-10');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tb_suppliers`
+-- Primary Keys
 --
 
-DROP TABLE IF EXISTS `tb_suppliers`;
-CREATE TABLE `tb_suppliers` (
-  `i_SupplierID` int(11) NOT NULL,
-  `c_SupplierName` varchar(30) NOT NULL,
-  `c_ContactName` varchar(30) NOT NULL,
-  `c_Address` varchar(30) NOT NULL,
-  `c_City` varchar(30) NOT NULL,
-  `c_PostalCode` varchar(30) NOT NULL,
-  `c_Country` varchar(30) NOT NULL,
-  `c_Phone` varchar(30) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `tb_categories` ADD PRIMARY KEY (`i_CategoryID`);
+ALTER TABLE `tb_customers` ADD PRIMARY KEY (`i_customerid`);
+ALTER TABLE `tb_employees` ADD PRIMARY KEY (`i_EmployeeID`);
+ALTER TABLE `tb_orderdetails` ADD PRIMARY KEY (`i_OrderDetailID`);
+ALTER TABLE `tb_orders` ADD PRIMARY KEY (`i_OrderID`);
+ALTER TABLE `tb_products` ADD PRIMARY KEY (`i_ProductID`);
+ALTER TABLE `tb_shippers` ADD PRIMARY KEY (`i_ShipperID`);
+ALTER TABLE `tb_student` ADD PRIMARY KEY (`c_stu_id`);
+ALTER TABLE `tb_suppliers` ADD PRIMARY KEY (`i_SupplierID`);
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `tb_suppliers`
+-- AUTO_INCREMENT for tables
 --
 
-INSERT INTO `tb_suppliers` VALUES
-(1, 'Exotic Liquid', 'Charlotte Cooper', '49 Gilbert St.', 'Londona', 'EC1 4SD', 'UK', '(171) 555-2222'),
-(2, 'New Orleans Cajun Delights', 'Shelley Burke', 'P.O. Box 78934', 'New Orleans', '70117', 'USA', '(100) 555-4822'),
-(3, 'Grandma Kelly\'s Homestead', 'Regina Murphy', '707 Oxford Rd.', 'Ann Arbor', '48104', 'USA', '(313) 555-5735'),
-(4, 'Tokyo Traders', 'Yoshi Nagase', '9-8 Sekimai Musashino-shi', 'Tokyo', '100', 'Japan', '(03) 3555-5011'),
-(5, 'Cooperativa de Quesos \'Las Cab', 'Antonio del Valle Saavedra', 'Calle del Rosal 4', 'Oviedo', '33007', 'Spain', '(98) 598 76 54'),
-(6, 'Mayumi\'s', 'Mayumi Ohno', '92 Setsuko Chuo-ku', 'Osaka', '545', 'Japan', '(06) 431-7877'),
-(7, 'Pavlova, Ltd.', 'Ian Devling', '74 Rose St. Moonie Ponds', 'Melbourne', '3058', 'Australia', '(03) 444-2343'),
-(8, 'Specialty Biscuits, Ltd.', 'Peter Wilson', '29 King\'s Way', 'Manchester', 'M14 GSD', 'UK', '(161) 555-4448'),
-(9, 'PB Kn?ckebr?d AB', 'Lars Peterson', 'Kaloadagatan 13', 'G?teborg', 'S-345 67', 'Sweden', '031-987 65 43'),
-(10, 'Refrescos Americanas LTDA', 'Carlos Diaz', 'Av. das Americanas 12.890', 'S?o Paulo', '5442', 'Brazil', '(11) 555 4640'),
-(11, 'Heli S??waren GmbH & Co. KG', 'Petra Winkler', 'Tiergartenstra?e 5', 'Berlin', '10785', 'Germany', '(010) 9984510'),
-(12, 'Plutzer Lebensmittelgro?m?rkte', 'Martin Bein', 'Bogenallee 51', 'Frankfurt', '60439', 'Germany', '(069) 992755'),
-(13, 'Nord-Ost-Fisch Handelsgesellsc', 'Sven Petersen', 'Frahmredder 112a', 'Cuxhaven', '27478', 'Germany', '(04721) 8713'),
-(14, 'Formaggi Fortini s.r.l.', 'Elio Rossi', 'Viale Dante, 75', 'Ravenna', '48100', 'Italy', '(0544) 60323'),
-(15, 'Norske Meierier', 'Beate Vileid', 'Hatlevegen 5', 'Sandvika', '1320', 'Norway', '(0)2-953010'),
-(16, 'Bigfoot Breweries', 'Cheryl Saylor', '3400 - 8th Avenue Suite 210', 'Bend', '97101', 'USA', '(503) 555-9931'),
-(17, 'Svensk Sj?f?da AB', 'Michael Bj?rn', 'Brovallav?gen 231', 'Stockholm', 'S-123 45', 'Sweden', '08-123 45 67'),
-(18, 'Aux joyeux eccl?siastiques', 'Guyl?ne Nodier', '203, Rue des Francs-Bourgeois', 'Paris', '75004', 'France', '(1) 03.83.00.68'),
-(19, 'New England Seafood Cannery', 'Robb Merchant', 'Order Processing Dept. 2100 Pa', 'Boston', '2134', 'USA', '(617) 555-3267'),
-(20, 'Leka Trading', 'Chandra Leka', '471 Serangoon Loop, Suite #402', 'Singapore', '512', 'Singapore', '555-8787'),
-(21, 'Lyngbysild', 'Niels Petersen', 'Lyngbysild Fiskebakken 10', 'Lyngby', '2800', 'Denmark', '43844108'),
-(22, 'Zaanse Snoepfabriek', 'Dirk Luchte', 'Verkoop Rijnweg 22', 'Zaandam', '9999 ZZ', 'Netherlands', '(12345) 1212'),
-(23, 'Karkki Oy', 'Anne Heikkonen', 'Valtakatu 12', 'Lappeenranta', '53120', 'Finland', '(953) 10956'),
-(24, 'G\'day, Mate', 'Wendy Mackenzie', '170 Prince Edward Parade Hunte', 'Sydney', '2042', 'Australia', '(02) 555-5914'),
-(25, 'Ma Maison', 'Jean-Guy Lauzon', '2960 Rue St. Laurent', 'Montr?al', 'H1J 1C3', 'Canada', '(514) 555-9022'),
-(26, 'Pasta Buttini s.r.l.', 'Giovanni Giudici', 'Via dei Gelsomini, 153', 'Salerno', '84100', 'Italy', '(089) 6547665'),
-(27, 'Escargots Nouveaux', 'Marie Delamare', '22, rue H. Voiron', 'Montceau', '71300', 'France', '85.57.00.07'),
-(28, 'Gai p?turage', 'Eliane Noz', 'Bat. B 3, rue des Alpes', 'Annecy', '74000', 'France', '38.76.98.06'),
-(29, 'For?ts d\'?rables', 'Chantal Goulet', '148 rue Chasseur', 'Ste-Hyacinthe', 'J2S 7S8', 'Canada', '(514) 555-2955');
+ALTER TABLE `tb_categories` MODIFY `i_CategoryID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+ALTER TABLE `tb_customers` MODIFY `i_customerid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+ALTER TABLE `tb_employees` MODIFY `i_EmployeeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+ALTER TABLE `tb_orderdetails` MODIFY `i_OrderDetailID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=519;
+ALTER TABLE `tb_orders` MODIFY `i_OrderID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10444;
+ALTER TABLE `tb_products` MODIFY `i_ProductID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
+ALTER TABLE `tb_shippers` MODIFY `i_ShipperID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+ALTER TABLE `tb_suppliers` MODIFY `i_SupplierID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+-- --------------------------------------------------------
 
 --
--- Indexes for dumped tables
+-- Foreign Key Constraints
 --
 
---
--- Indexes for table `tb_categories`
---
-ALTER TABLE `tb_categories`
-  ADD PRIMARY KEY (`i_CategoryID`);
+ALTER TABLE `tb_products`
+  ADD CONSTRAINT `fk_products_suppliers` FOREIGN KEY (`i_SupplierID`) REFERENCES `tb_suppliers` (`i_SupplierID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_products_categories` FOREIGN KEY (`i_CategoryID`) REFERENCES `tb_categories` (`i_CategoryID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- Indexes for table `tb_customers`
---
-ALTER TABLE `tb_customers`
-  ADD PRIMARY KEY (`i_customerid`);
-
---
--- Indexes for table `tb_employees`
---
-ALTER TABLE `tb_employees`
-  ADD PRIMARY KEY (`i_EmployeeID`);
-
---
--- Indexes for table `tb_orderdetails`
---
-ALTER TABLE `tb_orderdetails`
-  ADD PRIMARY KEY (`i_OrderDetailID`);
-
---
--- Indexes for table `tb_orders`
---
 ALTER TABLE `tb_orders`
-  ADD PRIMARY KEY (`i_OrderID`);
+  ADD CONSTRAINT `fk_orders_customers` FOREIGN KEY (`i_CustomerID`) REFERENCES `tb_customers` (`i_customerid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_orders_employees` FOREIGN KEY (`i_EmployeeID`) REFERENCES `tb_employees` (`i_EmployeeID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_orders_shippers` FOREIGN KEY (`i_ShipperID`) REFERENCES `tb_shippers` (`i_ShipperID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- Indexes for table `tb_products`
---
-ALTER TABLE `tb_products`
-  ADD PRIMARY KEY (`i_ProductID`);
+ALTER TABLE `tb_orderdetails`
+  ADD CONSTRAINT `fk_orderdetails_orders` FOREIGN KEY (`i_OrderID`) REFERENCES `tb_orders` (`i_OrderID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_orderdetails_products` FOREIGN KEY (`i_ProductID`) REFERENCES `tb_products` (`i_ProductID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- Indexes for table `tb_shippers`
---
-ALTER TABLE `tb_shippers`
-  ADD PRIMARY KEY (`i_ShipperID`);
-
---
--- Indexes for table `tb_student`
---
-ALTER TABLE `tb_student`
-  ADD PRIMARY KEY (`c_stu_id`);
-
---
--- Indexes for table `tb_suppliers`
---
-ALTER TABLE `tb_suppliers`
-  ADD PRIMARY KEY (`i_SupplierID`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `tb_products`
---
-ALTER TABLE `tb_products`
-  MODIFY `i_ProductID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
+SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-กำลังแสดง dbNorthwind (2).sql
