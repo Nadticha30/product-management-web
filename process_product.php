@@ -26,48 +26,81 @@ try {
         exit;
     }
 
-    // แปลงรหัส SUP001 / CAT02 ให้เป็นตัวเลขสำหรับ MySQL Integer
-    $supplierId = intval(preg_replace('/[^0-9]/', '',$rawSupplier));
-    if ($supplierId === 0)$supplierId = 1;
+    // แปลงรหัสข้อความ SUP001 / CAT01 ให้กลายเป็นตัวเลข ID 
+    $supInt = intval(preg_replace('/[^0-9]/', '',$rawSupplier));
+    $catInt = intval(preg_replace('/[^0-9]/', '',$rawCat));
 
-    $catId = intval(preg_replace('/[^0-9]/', '',$rawCat));
-    if ($catId === 0)$catId = 1;
+    $supVal   = ($supInt > 0) ?$supInt : 1;
+    $catVal   = ($catInt > 0) ?$catInt : 1;
+    $priceVal = floatval($price);
+    $stockVal = intval($quantity);
 
-    $priceNum = floatval($price);
-    $stockNum = intval($quantity);
+    // ดึงรายชื่อคอลัมน์จริงแบบปลอดภัย
+    $tableName = 'tb_products';$cols = [];
 
-    // ดึงคอลัมน์จริงจาก MySQL
-    $stmtCols =$conn->query("SHOW COLUMNS FROM tb_products");
-    $rawCols =$stmtCols->fetchAll(PDO::FETCH_COLUMN);
+    try {
+        $stmt =$conn->query("SELECT * FROM tb_products LIMIT 1");
+    } catch (Throwable $e) {$tableName = 'products';
+        $stmt =$conn->query("SELECT * FROM products LIMIT 1");
+    }
 
-    $colsLower = array_map('strtolower', $rawCols);$colMap = array_combine($colsLower,$rawCols);
+    if ($stmt) {
+        $colCount =$stmt->columnCount();
+        for ($i = 0; $i <$colCount; $i++) {$meta = $stmt->getColumnMeta($i);
+            if ($meta && isset($meta['name'])) {
+                $cols[] =$meta['name'];
+            }
+        }
+    }
 
-    $findCol = function($candidates) use ($colMap) {
+    $findCol = function($candidates) use ($cols) {
         foreach ($candidates as$cand) {
-            $lc = strtolower($cand);
-            if (isset($colMap[$lc])) return $colMap[$lc];
+            foreach ($cols as$col) {
+                if (strtolower($col) === strtolower($cand)) return$col;
+            }
+        }
+        foreach ($candidates as$cand) {
+            foreach ($cols as$col) {
+                if (strpos(strtolower($col), strtolower($cand)) !== false) return$col;
+            }
         }
         return null;
     };
 
-    $colName  =$findCol(['ProductName', 'c_ProductName', 'Name']) ?? 'ProductName';
-    $colSup   =$findCol(['SupplierID', 'i_SupplierID', 'SupID']) ?? 'SupplierID';
-    $colCat   =$findCol(['CategoryID', 'i_CategoryID', 'CatID']) ?? 'CategoryID';
-    $colUnit  =$findCol(['QuantityPerUnit', 'c_Unit', 'Unit']) ?? 'QuantityPerUnit';
-    $colPrice =$findCol(['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price']) ?? 'UnitPrice';
-    $colStock =$findCol(['UnitsInStock', 'i_UnitsInStock', 'Quantity', 'Stock']) ?? 'UnitsInStock';
+    $cName  =$findCol(['ProductName', 'c_ProductName', 'Name']) ?? 'ProductName';
+    $cSup   =$findCol(['SupplierID', 'i_SupplierID', 'Supplier']) ?? 'SupplierID';
+    $cCat   =$findCol(['CategoryID', 'i_CategoryID', 'Category', 'CatID']) ?? 'CategoryID';
+    $cUnit  =$findCol(['QuantityPerUnit', 'c_Unit', 'Unit']) ?? 'QuantityPerUnit';
+    $cPrice =$findCol(['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price']) ?? 'UnitPrice';
+    $cStock =$findCol(['UnitsInStock', 'i_UnitsInStock', 'Quantity', 'Stock']) ?? 'UnitsInStock';
 
-    $sql = "INSERT INTO tb_products (`{$colName}`, `{$colSup}`, `{$colCat}`, `{$colUnit}`, `{$colPrice}`, `{$colStock}`) 
-            VALUES (:productName, :supplierId, :catId, :unit, :price, :quantity)";
+    $insertData = [
+        $cName  =>$productName,
+        $cSup   =>$supVal,
+        $cCat   =>$catVal,
+        $cUnit  =>$unit,
+        $cPrice =>$priceVal,
+        $cStock =>$stockVal
+    ];
 
-    $stmt =$conn->prepare($sql);$stmt->bindValue(':productName', $productName, PDO::PARAM_STR);$stmt->bindValue(':supplierId', $supplierId, PDO::PARAM_INT);$stmt->bindValue(':catId', $catId, PDO::PARAM_INT);$stmt->bindValue(':unit', $unit, PDO::PARAM_STR);$stmt->bindValue(':price', $priceNum);$stmt->bindValue(':quantity', $stockNum, PDO::PARAM_INT);$stmt->execute();
+    $fields = array_keys($insertData);
+    $escapedFields = array_map(function($f) { return "`$f`"; }, $fields);
+    $placeholders  = array_map(function($f) { return ":$f"; }, $fields);
 
+    $sql = "INSERT INTO {$tableName} (" . implode(", ", $escapedFields) . ") VALUES (" . implode(", ", $placeholders) . ")";
+    $stmt = $conn->prepare($sql);
+
+    foreach ($insertData as$col => $val) {$stmt->bindValue(":$col", $val);
+    }
+
+    $stmt->execute();
     $lastId =$conn->lastInsertId();
 
     ob_clean();
     echo json_encode([
         'success' => true,
-        'id' => $lastId,
+        'status'  => 'success',
+        'id'      => $lastId,
         'message' => 'บันทึกข้อมูลสินค้าเรียบร้อยแล้ว'
     ], JSON_UNESCAPED_UNICODE);
 
@@ -75,6 +108,7 @@ try {
     ob_clean();
     echo json_encode([
         'success' => false,
+        'status'  => 'error',
         'message' => 'เกิดข้อผิดพลาดในการบันทึก: ' . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }
