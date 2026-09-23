@@ -1,12 +1,14 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-error_reporting(E_ALL);
+ob_start();
+error_reporting(0);
 ini_set('display_errors', 0);
+header('Content-Type: application/json; charset=utf-8');
 
 try {
     require_once "ConnDB.php";
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Method Not Allowed']);
         exit;
     }
@@ -19,46 +21,40 @@ try {
     $quantity    = trim($_POST['Quantity'] ?? '0');
 
     if ($productName === '' \vert{}\vert{}$supplierId === '' || $catId === '' \vert{}\vert{}$unit === '') {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง']);
         exit;
     }
 
-    // 1. อ่านตัวอย่างคอลัมน์ที่มีอยู่จริงในตาราง tb_products
-    $stmtCheck =$conn->query("SELECT * FROM tb_products LIMIT 1");
-    $sample = $stmtCheck->fetch(PDO::FETCH_ASSOC);$cols = $sample ? array_keys($sample) : [];
+    // อ่านคอลัมน์จริงจากตาราง tb_products
+    $stmtCols =$conn->query("SHOW COLUMNS FROM tb_products");
+    $rawCols =$stmtCols->fetchAll(PDO::FETCH_COLUMN);
 
-    // 2. แมปชื่อคอลัมน์จริงพร้อมค่าตั้งต้นสำรอง (Prevent Null Column)
-    $colName  = 'ProductName';
-    foreach (['c_ProductName', 'ProductName', 'name'] as $c) {
-        if (in_array($c,$cols)) { $colName =$c; break; }
+    if (empty($rawCols)) {
+        throw new Exception("ไม่พบตาราง tb_products ในฐานข้อมูล");
     }
 
-    $colSup   = 'SupplierID';
-    foreach (['i_SupplierID', 'SupplierID'] as $c) {
-        if (in_array($c,$cols)) { $colSup =$c; break; }
+    // ค้นหาชื่อคอลัมน์จริงในตารางด้วย Keyword
+    $colName = null; $colSup = null; $colCat = null; $colUnit = null; $colPrice = null; $colStock = null;
+
+    foreach ($rawCols as$col) {
+        $lc = strtolower($col);
+        if (!$colName && strpos($lc, 'name') !== false) $colName =$col;
+        if (!$colSup && strpos($lc, 'supplier') !== false) $colSup =$col;
+        if (!$colCat && strpos($lc, 'cat') !== false) $colCat =$col;
+        if (!$colPrice && strpos($lc, 'price') !== false) $colPrice =$col;
+        if (!$colStock && (strpos($lc, 'stock') !== false || strpos($lc, 'quantity') !== false) && strpos($lc, 'unit') === false) $colStock =$col;
+        if (!$colUnit && (strpos($lc, 'unit') !== false \vert{}\vert{} strpos($lc, 'quantityperunit') !== false) && strpos($lc, 'price') === false && strpos($lc, 'stock') === false) $colUnit =$col;
     }
 
-    $colCat   = 'CategoryID';
-    foreach (['i_CategoryID', 'CategoryID', 'CatID'] as $c) {
-        if (in_array($c,$cols)) { $colCat =$c; break; }
-    }
+    // ค่าสำรองกรณีคอลัมน์ไม่ตรง
+    $colName  =$colName  ?? 'ProductName';
+    $colSup   =$colSup   ?? 'SupplierID';
+    $colCat   =$colCat   ?? 'CategoryID';
+    $colUnit  =$colUnit  ?? 'QuantityPerUnit';
+    $colPrice =$colPrice ?? 'UnitPrice';
+    $colStock =$colStock ?? 'UnitsInStock';
 
-    $colUnit  = 'QuantityPerUnit';
-    foreach (['QuantityPerUnit', 'c_Unit', 'Unit'] as $c) {
-        if (in_array($c,$cols)) { $colUnit =$c; break; }
-    }
-
-    $colPrice = 'UnitPrice';
-    foreach (['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price'] as $c) {
-        if (in_array($c,$cols)) { $colPrice =$c; break; }
-    }
-
-    $colStock = 'UnitsInStock';
-    foreach (['UnitsInStock', 'i_UnitsInStock', 'Quantity', 'Stock'] as $c) {
-        if (in_array($c,$cols)) { $colStock =$c; break; }
-    }
-
-    // 3. ทำการ Insert ข้อมูล
     $sql = "INSERT INTO tb_products (`$colName`, `$colSup`, `$colCat`, `$colUnit`, `$colPrice`, `$colStock`) 
             VALUES (:productName, :supplierId, :catId, :unit, :price, :quantity)";
 
@@ -66,6 +62,7 @@ try {
 
     $lastId =$conn->lastInsertId();
 
+    ob_clean();
     echo json_encode([
         'success' => true,
         'id' => $lastId,
@@ -73,9 +70,10 @@ try {
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {
+    ob_clean();
     echo json_encode([
         'success' => false,
-        'message' => 'เกิดข้อผิดพลาดจาก Server: ' . $e->getMessage()
+        'message' => 'เกิดข้อผิดพลาดในการบันทึก: ' . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }
 ?>
