@@ -275,6 +275,60 @@
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
+        let allProductsData = [];
+
+// ฟังก์ชันดึงข้อมูลสินค้าจาก API เมื่อเปิดหน้าเว็บ
+async function loadProducts() {
+  try {
+    const response = await fetch('get_products.php');
+    const data = await response.json();
+    allProductsData = data;
+    renderTable(allProductsData);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+}
+
+// ฟังก์ชันวาดตารางสินค้า
+function renderTable(products) {
+  const tbody = document.getElementById('productTableBody'); // เช็กให้ตรงกับ ID ของ <tbody> ในตารางคุณ
+  if (!tbody) return;
+
+  tbody.innerHTML = products.map(item => `
+    <tr class="border-b hover:bg-gray-50">
+      <td class="p-3 text-emerald-600 font-bold">#${item.f_ProductID || item.ProductID}</td>
+      <td class="p-3 font-medium">${item.f_ProductName || item.ProductName}</td>
+      <td class="p-3">Cat #${item.f_CategoryID || item.CategoryID}</td>
+      <td class="p-3">Sup #${item.f_SupplierID || item.SupplierID}</td>
+      <td class="p-3">฿${parseFloat(item.f_Price || item.UnitPrice || 0).toFixed(2)}</td>
+      <td class="p-3">${item.f_Quantity || item.UnitsInStock || 0}</td>
+      <td class="p-3">${item.f_Unit || item.QuantityPerUnit || ''}</td>
+    </tr>
+  `).join('');
+}
+
+function filterProducts(type) {
+  ['all', 'northwind', 'test'].forEach(t => {
+    const btn = document.getElementById(`btn-${t}`);
+    if (!btn) return;
+    if (t === type) {
+      btn.className = "px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg shadow transition";
+    } else {
+      btn.className = "px-4 py-2 bg-white text-gray-700 border border-gray-300 font-medium rounded-lg hover:bg-gray-50 transition";
+    }
+  });
+
+  if (type === 'northwind') {
+    const northwindData = allProductsData.filter(p => (p.f_ProductID || p.ProductID) <= 77);
+    renderTable(northwindData);
+  } else if (type === 'test') {
+    const testData = allProductsData.filter(p => (p.f_ProductID || p.ProductID) > 77);
+    renderTable(testData);
+  } else {
+    renderTable(allProductsData);
+  }
+}
+document.addEventListener('DOMContentLoaded', loadProducts);
     </script>
 </body>
 </html>
