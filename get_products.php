@@ -1,7 +1,8 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-error_reporting(E_ALL);
+ob_start();
+error_reporting(0);
 ini_set('display_errors', 0);
+header('Content-Type: application/json; charset=utf-8');
 
 try {
     require_once "ConnDB.php";
@@ -11,36 +12,30 @@ try {
 
     $result = [];
     foreach ($products as $row) {
-        $id = 0;
-        $name = '';
-        $cat = 0;
-        $sup = 0;
-        $unit = '';
-        $price = 0.0;
-        $stock = 0;
+        $id = 0; $name = ''; $cat = 0; $sup = 0; $unit = ''; $price = 0.0; $stock = 0;
 
-        // ดึงค่าโดยจับคู่คอลัมน์แบบไม่สนตัวพิมพ์เล็ก-ใหญ่
+        // ค้นหาข้อมูลตามคอลัมน์จริงด้วย Keyword
         foreach ($row as $k => $v) {
             $lk = strtolower($k);
-            
-            if (in_array($lk, ['productid', 'i_productid', 'id'])) {
+
+            if (strpos($lk, 'id') !== false && (strpos($lk, 'product') !== false || $lk === 'id')) {
                 $id = $v;
-            } elseif (in_array($lk, ['productname', 'c_productname', 'name'])) {
+            } elseif (strpos($lk, 'name') !== false) {
                 $name = $v;
-            } elseif (in_array($lk, ['categoryid', 'i_categoryid', 'catid'])) {
+            } elseif (strpos($lk, 'cat') !== false) {
                 $cat = $v;
-            } elseif (in_array($lk, ['supplierid', 'i_supplierid'])) {
+            } elseif (strpos($lk, 'supplier') !== false) {
                 $sup = $v;
-            } elseif (in_array($lk, ['quantityperunit', 'c_unit', 'unit'])) {
-                $unit = $v;
-            } elseif (in_array($lk, ['unitprice', 'f_unitprice', 'f_price', 'price'])) {
-                if ($v !== null && $v !== '') $price = floatval($v);
-            } elseif (in_array($lk, ['unitsinstock', 'i_unitsinstock', 'quantity', 'stock'])) {
-                if ($v !== null && $v !== '') $stock = intval($v);
+            } elseif (strpos($lk, 'price') !== false && $v !== null && $v !== '') {
+                $price = floatval($v);
+            } elseif ((strpos($lk, 'stock') !== false || strpos($lk, 'quantity') !== false) && $v !== null && $v !== '' && strpos($lk, 'unit') === false) {
+                $stock = intval($v);
+            } elseif ((strpos($lk, 'unit') !== false || strpos($lk, 'quantityperunit') !== false) && strpos($lk, 'price') === false && strpos($lk, 'stock') === false) {
+                if ($v !== null) $unit = strval($v);
             }
         }
 
-        // ส่งออก JSON ครบทุกรูปแบบที่ JavaScript หน้าเว็บจะเรียกใช้งาน
+        // ส่งออก JSON ครบทุกรูปแบบชื่อ Key ไม่ว่า JS จะเรียกใช้ชื่อไหนก็อ่านค่าได้ถูกต้อง
         $result[] = [
             'i_ProductID'     => $id,
             'ProductID'       => $id,
@@ -56,15 +51,18 @@ try {
             'f_Price'         => $price,
             'UnitPrice'       => $price,
             'Price'           => $price,
+            'f_UnitPrice'     => $price,
             'i_UnitsInStock'  => $stock,
             'UnitsInStock'    => $stock,
             'Quantity'        => $stock
         ];
     }
 
+    ob_clean();
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {
+    ob_clean();
     echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }
 ?>
