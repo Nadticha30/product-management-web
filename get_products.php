@@ -11,29 +11,42 @@ try {
 
     $result = [];
     foreach ($products as $row) {
-        // เอาข้อมูลเดิมจากฐานข้อมูลทั้งหมดใส่เข้าไปก่อน หน้าเว็บต้องการคีย์ไหนจะได้มีครบ
-        $item = $row; 
+        $item = $row; // เอาของเดิมมาให้หมดก่อน
         
-        $price = 0;
+        $price = 0.0;
         $stock = 0;
+        $name = '';
+        $unit = '';
         
-        // ค้นหาคอลัมน์ราคาและสต็อกแบบระบุคำเป๊ะๆ (ไม่ใช้การดักคำมั่วๆ แล้ว)
+        // ค้นหาว่าค่าไหนคือราคา และค่าไหนคือสต็อก
         foreach ($row as $k => $v) {
             $lk = strtolower($k);
             
-            if (in_array($lk, ['unitprice', 'price', 'f_price'])) {
+            if (strpos($lk, 'price') !== false) {
                 $price = floatval($v);
-            }
-            if (in_array($lk, ['unitsinstock', 'quantity', 'stock', 'i_unitsinstock'])) {
+            } elseif (strpos($lk, 'stock') !== false) {
                 $stock = intval($v);
+            } elseif ($lk === 'quantity' || $lk === 'i_quantity') {
+                $stock = intval($v);
+            } elseif (strpos($lk, 'name') !== false) {
+                $name = $v;
+            } elseif (strpos($lk, 'unit') !== false && strpos($lk, 'price') === false && strpos($lk, 'stock') === false) {
+                $unit = $v;
             }
         }
 
-        // ยัดค่าลงใน Key มาตรฐานบังคับ เพื่อให้หน้าเว็บอ่านออก 100%
+        // ยัดค่าลง Key บังคับ เพื่อให้หน้าเว็บอ่านออก 100% ไม่กลายเป็น 0
         $item['Price'] = $price;
+        $item['UnitPrice'] = $price;
+        $item['f_Price'] = $price;
+        
         $item['Quantity'] = $stock;
         $item['UnitsInStock'] = $stock;
-        $item['f_Price'] = $price;
+        $item['Stock'] = $stock;
+        $item['i_UnitsInStock'] = $stock;
+
+        if (!isset($item['ProductName'])) $item['ProductName'] = $name;
+        if (!isset($item['Unit'])) $item['Unit'] = $unit;
         
         $result[] = $item;
     }
