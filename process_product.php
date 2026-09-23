@@ -14,51 +14,53 @@ try {
     }
 
     $productName = trim($_POST['ProductName'] ?? '');
-    $supplierId  = trim($_POST['SupplierID'] ?? '');
-    $catId       = trim($_POST['CatID'] ?? '');
+    $rawSupplier = trim($_POST['SupplierID'] ?? '');
+    $rawCat      = trim($_POST['CatID'] ?? '');
     $unit        = trim($_POST['Unit'] ?? '');
     $price       = trim($_POST['Price'] ?? '0');
     $quantity    = trim($_POST['Quantity'] ?? '0');
 
-    if ($productName === '' \vert{}\vert{}$supplierId === '' || $catId === '' \vert{}\vert{}$unit === '') {
+    if ($productName === '' \vert{}\vert{}$rawSupplier === '' || $rawCat === '' \vert{}\vert{}$unit === '') {
         ob_clean();
         echo json_encode(['success' => false, 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง']);
         exit;
     }
 
-    // อ่านคอลัมน์จริงจากตาราง tb_products
+    // แปลงรหัส SUP001 / CAT02 ให้เป็นตัวเลขสำหรับ MySQL Integer
+    $supplierId = intval(preg_replace('/[^0-9]/', '',$rawSupplier));
+    if ($supplierId === 0)$supplierId = 1;
+
+    $catId = intval(preg_replace('/[^0-9]/', '',$rawCat));
+    if ($catId === 0)$catId = 1;
+
+    $priceNum = floatval($price);
+    $stockNum = intval($quantity);
+
+    // ดึงคอลัมน์จริงจาก MySQL
     $stmtCols =$conn->query("SHOW COLUMNS FROM tb_products");
     $rawCols =$stmtCols->fetchAll(PDO::FETCH_COLUMN);
 
-    if (empty($rawCols)) {
-        throw new Exception("ไม่พบตาราง tb_products ในฐานข้อมูล");
-    }
+    $colsLower = array_map('strtolower', $rawCols);$colMap = array_combine($colsLower,$rawCols);
 
-    // ค้นหาชื่อคอลัมน์จริงในตารางด้วย Keyword
-    $colName = null; $colSup = null; $colCat = null; $colUnit = null; $colPrice = null; $colStock = null;
+    $findCol = function($candidates) use ($colMap) {
+        foreach ($candidates as$cand) {
+            $lc = strtolower($cand);
+            if (isset($colMap[$lc])) return $colMap[$lc];
+        }
+        return null;
+    };
 
-    foreach ($rawCols as$col) {
-        $lc = strtolower($col);
-        if (!$colName && strpos($lc, 'name') !== false) $colName =$col;
-        if (!$colSup && strpos($lc, 'supplier') !== false) $colSup =$col;
-        if (!$colCat && strpos($lc, 'cat') !== false) $colCat =$col;
-        if (!$colPrice && strpos($lc, 'price') !== false) $colPrice =$col;
-        if (!$colStock && (strpos($lc, 'stock') !== false || strpos($lc, 'quantity') !== false) && strpos($lc, 'unit') === false) $colStock =$col;
-        if (!$colUnit && (strpos($lc, 'unit') !== false \vert{}\vert{} strpos($lc, 'quantityperunit') !== false) && strpos($lc, 'price') === false && strpos($lc, 'stock') === false) $colUnit =$col;
-    }
+    $colName  =$findCol(['ProductName', 'c_ProductName', 'Name']) ?? 'ProductName';
+    $colSup   =$findCol(['SupplierID', 'i_SupplierID', 'SupID']) ?? 'SupplierID';
+    $colCat   =$findCol(['CategoryID', 'i_CategoryID', 'CatID']) ?? 'CategoryID';
+    $colUnit  =$findCol(['QuantityPerUnit', 'c_Unit', 'Unit']) ?? 'QuantityPerUnit';
+    $colPrice =$findCol(['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price']) ?? 'UnitPrice';
+    $colStock =$findCol(['UnitsInStock', 'i_UnitsInStock', 'Quantity', 'Stock']) ?? 'UnitsInStock';
 
-    // ค่าสำรองกรณีคอลัมน์ไม่ตรง
-    $colName  =$colName  ?? 'ProductName';
-    $colSup   =$colSup   ?? 'SupplierID';
-    $colCat   =$colCat   ?? 'CategoryID';
-    $colUnit  =$colUnit  ?? 'QuantityPerUnit';
-    $colPrice =$colPrice ?? 'UnitPrice';
-    $colStock =$colStock ?? 'UnitsInStock';
-
-    $sql = "INSERT INTO tb_products (`$colName`, `$colSup`, `$colCat`, `$colUnit`, `$colPrice`, `$colStock`) 
+    $sql = "INSERT INTO tb_products (`{$colName}`, `{$colSup}`, `{$colCat}`, `{$colUnit}`, `{$colPrice}`, `{$colStock}`) 
             VALUES (:productName, :supplierId, :catId, :unit, :price, :quantity)";
 
-    $stmt =$conn->prepare($sql);$stmt->bindValue(':productName', $productName, PDO::PARAM_STR);$stmt->bindValue(':supplierId', $supplierId, PDO::PARAM_INT);$stmt->bindValue(':catId', $catId, PDO::PARAM_INT);$stmt->bindValue(':unit', $unit, PDO::PARAM_STR);$stmt->bindValue(':price', $price);$stmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);$stmt->execute();
+    $stmt =$conn->prepare($sql);$stmt->bindValue(':productName', $productName, PDO::PARAM_STR);$stmt->bindValue(':supplierId', $supplierId, PDO::PARAM_INT);$stmt->bindValue(':catId', $catId, PDO::PARAM_INT);$stmt->bindValue(':unit', $unit, PDO::PARAM_STR);$stmt->bindValue(':price', $priceNum);$stmt->bindValue(':quantity', $stockNum, PDO::PARAM_INT);$stmt->execute();
 
     $lastId =$conn->lastInsertId();
 
