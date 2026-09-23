@@ -1,5 +1,8 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+error_reporting(0);
+ini_set('display_errors', 0);
+
 require_once "ConnDB.php";
 
 try {
@@ -8,26 +11,26 @@ try {
 
     $result = [];
     foreach ($products as $row) {
-        $id   = $row['i_ProductID'] ?? $row['ProductID'] ?? $row['id'] ?? 0;
-        $name = $row['c_ProductName'] ?? $row['ProductName'] ?? $row['name'] ?? '';
+        $id   = $row['i_ProductID'] ?? $row['ProductID'] ?? $row['id'] ?? reset($row);
+        $name = $row['c_ProductName'] ?? $row['ProductName'] ?? '';
         $cat  = $row['i_CategoryID'] ?? $row['CategoryID'] ?? 0;
         $sup  = $row['i_SupplierID'] ?? $row['SupplierID'] ?? 0;
         $unit = $row['c_Unit'] ?? $row['QuantityPerUnit'] ?? $row['Unit'] ?? '';
-        
-        // ค้นหาราคาจากชื่อคอลัมน์ที่เป็นไปได้ทั้งหมด
+
+        // ค้นหาราคาจริงจากทุกชื่อคอลัมน์ที่เป็นไปได้
         $price = 0;
-        foreach (['f_UnitPrice', 'UnitPrice', 'f_Price', 'Price', 'f_unitprice', 'unitprice', 'price'] as $key) {
-            if (isset($row[$key]) && $row[$key] !== null && $row[$key] !== '') {
-                $price = floatval($row[$key]);
+        foreach (['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price'] as $pKey) {
+            if (array_key_exists($pKey, $row) && $row[$pKey] !== null && $row[$pKey] !== '') {
+                $price = floatval($row[$pKey]);
                 break;
             }
         }
 
-        // ค้นหาจำนวนคงเหลือจากชื่อคอลัมน์ที่เป็นไปได้ทั้งหมด
+        // ค้นหาจำนวนคงเหลือจริงจากทุกชื่อคอลัมน์ที่เป็นไปได้
         $stock = 0;
-        foreach (['i_UnitsInStock', 'UnitsInStock', 'i_Quantity', 'Quantity', 'unitsinstock', 'stock'] as $key) {
-            if (isset($row[$key]) && $row[$key] !== null && $row[$key] !== '') {
-                $stock = intval($row[$key]);
+        foreach (['UnitsInStock', 'i_UnitsInStock', 'Quantity'] as $sKey) {
+            if (array_key_exists($sKey, $row) && $row[$sKey] !== null && $row[$sKey] !== '') {
+                $stock = intval($row[$sKey]);
                 break;
             }
         }
@@ -44,7 +47,7 @@ try {
     }
 
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
-} catch (PDOException $e) {
+} catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }
