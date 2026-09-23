@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ระบบจัดการข้อมูลสินค้า</title>
+    <title>แดชบอร์ดภาพรวมคลังสินค้า - Northwind</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,240 +11,257 @@
         body { font-family: 'Prompt', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-12">
 
-    <!-- Navbar Header -->
-    <nav class="bg-emerald-800 text-white shadow-lg">
+    <nav class="bg-emerald-800 text-white shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
+                <a href="dashboard.html" class="flex items-center space-x-3 hover:opacity-90 transition">
                     <i class="fa-solid fa-boxes-stacked text-2xl text-emerald-300"></i>
                     <span class="font-bold text-xl tracking-wide">Northwind Management</span>
-                </div>
+                </a>
                 <div class="flex space-x-2">
-                    <a href="dashboard.html" class="bg-emerald-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow">
-                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    <a href="dashboard.html" class="bg-emerald-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 shadow border border-emerald-600">
+                        <i class="fa-solid fa-chart-line"></i> <span class="hidden sm:inline">Dashboard</span>
                     </a>
-                    <a href="product_insert_api.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-                        <i class="fa-solid fa-plus"></i> เพิ่มสินค้าใหม่
+                    <a href="product_insert_api.html" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">เพิ่มสินค้าใหม่</span>
                     </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         
-        <!-- Header Title -->
-        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">แดชบอร์ดภาพรวมคลังสินค้า</h1>
-                <p class="text-gray-500 text-sm">แสดงสรุปสถิติและรายการสินค้าทั้งหมดจากฐานข้อมูล MySQL</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">แดชบอร์ดภาพรวมคลังสินค้า</h1>
+                <p class="text-sm text-gray-500 mt-1">แสดงสรุปสถิติและรายการสินค้าทั้งหมดจากฐานข้อมูล MySQL</p>
             </div>
-            <button onclick="loadDashboardData()" class="mt-4 md:mt-0 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 shadow-sm">
-                <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> รีเฟรชข้อมูล
+            <button onclick="loadDashboardData()" class="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition">
+                <i class="fa-solid fa-rotate-right" id="refresh-icon"></i>
+                <span>รีเฟรชข้อมูล</span>
             </button>
         </div>
 
-        <!-- KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             <!-- Total Products -->
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">จำนวนสินค้าทั้งหมด</p>
-                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-total-products">0</h3>
-                    <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-circle-check"></i> ในระบบ</p>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">จำนวนสินค้าทั้งหมด</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="kpi-total-products">0</h3>
+                    <p class="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check text-[10px]"></i> ในระบบ
+                    </p>
                 </div>
-                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center text-xl">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
                     <i class="fa-solid fa-box"></i>
                 </div>
             </div>
 
-            <!-- Total Value -->
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+            <!-- Total Stock Value -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">มูลค่าสินค้าในคลัง</p>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">มูลค่าสินค้าในคลัง</p>
                     <h3 class="text-2xl font-bold text-emerald-700 mt-1" id="kpi-total-value">฿0.00</h3>
                     <p class="text-xs text-gray-400 mt-1">คำนวณจาก (ราคา x จำนวน)</p>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-lg flex items-center justify-center text-xl">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
                     <i class="fa-solid fa-coins"></i>
                 </div>
             </div>
 
             <!-- Total Categories -->
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">หมวดหมู่สินค้า</p>
-                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-total-categories">0</h3>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">หมวดหมู่สินค้า</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="kpi-total-categories">0</h3>
                     <p class="text-xs text-gray-400 mt-1">ที่มีสินค้าคงเหลือ</p>
                 </div>
-                <div class="w-12 h-12 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center text-xl">
+                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
             </div>
 
-            <!-- Low Stock -->
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+            <!-- Low Stock Count -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">สินค้าใกล้หมด (<=5)</p>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">สินค้าใกล้หมด (&lt;=5)</p>
                     <h3 class="text-2xl font-bold text-amber-600 mt-1" id="kpi-low-stock">0</h3>
-                    <p class="text-xs text-amber-500 mt-1"><i class="fa-solid fa-triangle-exclamation"></i> ควรสั่งซื้อเพิ่ม</p>
+                    <p class="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> ควรสั่งซื้อเพิ่ม
+                    </p>
                 </div>
-                <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-lg flex items-center justify-center text-xl">
+                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl">
                     <i class="fa-solid fa-warehouse"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Table Section -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             
-            <!-- Table Action Bar -->
-            <div class="p-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-list text-emerald-600"></i> ตารางรายการสินค้าทั้งหมด
-                </h2>
-                <div class="relative w-full md:w-72">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาชื่อสินค้า / รหัส..." 
-                           class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-emerald-600 text-lg"></i>
+                    <h2 class="text-lg font-bold text-gray-800">ตารางรายการสินค้าทั้งหมด</h2>
+                </div>
+                <div class="relative max-w-xs w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาชื่อสินค้า / รหัส..."
+                           class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
                 </div>
             </div>
 
-            <!-- Table Content -->
+            <!-- Table Section -->
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="productTable">
+                <table class="w-full text-left border-collapse" id="productsTable">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider border-b border-gray-200">
-                            <th class="py-3 px-4 font-semibold">รหัสสินค้า</th>
-                            <th class="py-3 px-4 font-semibold">ชื่อสินค้า</th>
-                            <th class="py-3 px-4 font-semibold">หมวดหมู่</th>
-                            <th class="py-3 px-4 font-semibold">ผู้จัดจำหน่าย</th>
-                            <th class="py-3 px-4 font-semibold text-right">ราคา/หน่วย</th>
-                            <th class="py-3 px-4 font-semibold text-center">คงเหลือ</th>
-                            <th class="py-3 px-4 font-semibold text-center">หน่วยนับ</th>
-                            <th class="py-3 px-4 font-semibold text-center">สถานะ</th>
+                        <tr class="bg-gray-50 text-gray-600 text-xs uppercase font-semibold border-b border-gray-100">
+                            <th class="py-3.5 px-4">รหัสสินค้า</th>
+                            <th class="py-3.5 px-4">ชื่อสินค้า</th>
+                            <th class="py-3.5 px-4">หมวดหมู่</th>
+                            <th class="py-3.5 px-4">ผู้จัดจำหน่าย</th>
+                            <th class="py-3.5 px-4 text-right">ราคา/หน่วย</th>
+                            <th class="py-3.5 px-4 text-center">คงเหลือ</th>
+                            <th class="py-3.5 px-4">หน่วยนับ</th>
+                            <th class="py-3.5 px-4 text-center">สถานะ</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                    <tbody id="tableBody" class="divide-y divide-gray-100 text-sm">
                         <tr>
-                            <td colspan="8" class="text-center py-8 text-gray-400">
-                                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
-                                <p>กำลังโหลดข้อมูลสินค้า...</p>
+                            <td colspan="8" class="py-12 text-center text-gray-400">
+                                <i class="fa-solid fa-spinner fa-spin text-2xl text-emerald-600 mb-2"></i>
+                                <p>กำลังโหลดข้อมูลสินค้าจากเซิร์ฟเวอร์...</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- Error Banner Container -->
+            <div id="errorContainer" class="hidden p-6 text-center bg-red-50 border-t border-red-100">
+                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h3 class="text-base font-bold text-red-800 mb-1">ไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้</h3>
+                <p class="text-xs text-red-600 max-w-lg mx-auto bg-white p-3 rounded-lg border border-red-200 font-mono mt-2" id="errorDetail">
+                    ข้อผิดพลาด HTTP 500
+                </p>
+                <div class="mt-4 text-xs text-gray-500 space-y-1">
+                    <p>💡 <b>วิธีตรวจสอบ:</b> กด <b>F12</b> &rarr; แท็บ <b>Network</b> &rarr; คลิก <code>get_products.php</code> &rarr; แท็บ <b>Response</b></p>
+                </div>
+            </div>
+
         </div>
+    </main>
 
-    </div>
-
-    <!-- Script -->
     <script>
+        let allProducts = [];
+
         document.addEventListener('DOMContentLoaded', loadDashboardData);
 
         async function loadDashboardData() {
             const refreshIcon = document.getElementById('refresh-icon');
+            const errorContainer = document.getElementById('errorContainer');
+            const tableBody = document.getElementById('tableBody');
+
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
+            errorContainer.classList.add('hidden');
 
             try {
                 const response = await fetch('get_products.php');
-                const result = await response.json();
-
-                if (result.success) {
-                    renderKPIs(result.stats);
-                    renderTable(result.data);
+                const contentType = response.headers.get('content-type');
+                
+                let result;
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
                 } else {
-                    showErrorState(result.message || 'ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้');
+                    const rawText = await response.text();
+                    throw new Error(`Server ส่งข้อมูลที่ไม่ใช่ JSON (HTTP Status ${response.status}): ${rawText.substring(0, 200)}`);
                 }
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || `HTTP Error ${response.status}`);
+                }
+
+                allProducts = result.data || [];
+                renderKPIs(result.stats || {});
+                renderTable(allProducts);
+
             } catch (error) {
-                console.error('Fetch error:', error);
-                showErrorState('ไม่สามารถเชื่อมต่อ get_products.php ได้ กรุณาตรวจสอบว่าเปิดผ่าน URL ของ Railway แล้วหรือไม่');
+                console.error('Fetch Error:', error);
+                showErrorState(error.message);
             } finally {
                 if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 500);
             }
         }
 
-        function showErrorState(msg) {
-            document.getElementById('tableBody').innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center py-8 text-red-500">
-                        <i class="fa-solid fa-circle-xmark text-3xl mb-2"></i>
-                        <p class="font-bold text-base">ไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้</p>
-                        <p class="text-xs text-gray-600 mt-1 max-w-md mx-auto bg-red-50 p-2 rounded border border-red-200">${escapeHtml(msg)}</p>
-                        <p class="text-xs text-emerald-700 mt-3 font-medium">💡 คำแนะนำ: กด F12 แล้วดูที่แท็บ Console หรือ Network เพื่อดูข้อผิดพลาด</p>
-                    </td>
-                </tr>`;
-        }
-
         function renderKPIs(stats) {
-            if (!stats) return;
             document.getElementById('kpi-total-products').innerText = Number(stats.total_products || 0).toLocaleString();
-            document.getElementById('kpi-total-value').innerText = '฿' + Number(stats.total_value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('kpi-total-value').innerText = '฿' + Number(stats.total_value || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('kpi-total-categories').innerText = Number(stats.total_categories || 0).toLocaleString();
             document.getElementById('kpi-low-stock').innerText = Number(stats.low_stock_count || 0).toLocaleString();
         }
 
         function renderTable(products) {
-            const tbody = document.getElementById('tableBody');
+            const tableBody = document.getElementById('tableBody');
+            
             if (!products || products.length === 0) {
-                tbody.innerHTML = `
+                tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-gray-400">
-                            <i class="fa-solid fa-box-open text-3xl mb-2"></i>
-                            <p>ยังไม่มีรายการสินค้าในระบบ</p>
+                        <td colspan="8" class="py-10 text-center text-gray-400">
+                            <i class="fa-solid fa-box-open text-3xl mb-2 block"></i>
+                            ยังไม่มีรายการสินค้าในระบบ
                         </td>
-                    </tr>`;
+                    </tr>
+                `;
                 return;
             }
 
-            tbody.innerHTML = products.map(item => {
-                const stock = parseInt(item.i_UnitsInStock || 0);
-                let badgeClass = 'bg-emerald-100 text-emerald-800';
-                let statusText = 'พร้อมจำหน่าย';
-
-                if (stock === 0) {
-                    badgeClass = 'bg-red-100 text-red-800';
-                    statusText = 'สินค้าหมด';
-                } else if (stock <= 5) {
-                    badgeClass = 'bg-amber-100 text-amber-800';
-                    statusText = 'สินค้าใกล้หมด';
-                }
+            tableBody.innerHTML = products.map(p => {
+                const stock = parseInt(p.i_UnitsInStock || 0);
+                const price = parseFloat(p.f_Price || 0);
+                let stockBadge = stock <= 5 
+                    ? `<span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">ใกล้หมด</span>`
+                    : `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">พร้อมขาย</span>`;
 
                 return `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="py-3 px-4 font-mono text-xs text-gray-500">#${escapeHtml(item.i_ProductID)}</td>
-                        <td class="py-3 px-4 font-medium text-gray-900">${escapeHtml(item.c_ProductName)}</td>
-                        <td class="py-3 px-4 text-gray-600">หมวดหมู่ #${escapeHtml(item.i_CategoryID)}</td>
-                        <td class="py-3 px-4 text-gray-600">SUP-${escapeHtml(item.i_SupplierID)}</td>
-                        <td class="py-3 px-4 text-right font-medium text-emerald-700">฿${Number(item.f_Price).toFixed(2)}</td>
-                        <td class="py-3 px-4 text-center font-semibold ${stock <= 5 ? 'text-amber-600' : 'text-gray-700'}">${stock}</td>
-                        <td class="py-3 px-4 text-center text-gray-500">${escapeHtml(item.c_Unit || '-')}</td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeClass}">
-                                ${statusText}
-                            </span>
-                        </td>
-                    </tr>`;
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="py-3.5 px-4 font-semibold text-emerald-700">#${p.i_ProductID}</td>
+                        <td class="py-3.5 px-4 font-medium text-gray-900">${escapeHtml(p.c_ProductName || '')}</td>
+                        <td class="py-3.5 px-4 text-gray-600">Cat #${p.i_CategoryID || '-'}</td>
+                        <td class="py-3.5 px-4 text-gray-600">Sup #${p.i_SupplierID || '-'}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-gray-800">฿${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="py-3.5 px-4 text-center font-bold ${stock <= 5 ? 'text-amber-600' : 'text-gray-700'}">${stock}</td>
+                        <td class="py-3.5 px-4 text-gray-500">${escapeHtml(p.c_Unit || 'ชิ้น')}</td>
+                        <td class="py-3.5 px-4 text-center">${stockBadge}</td>
+                    </tr>
+                `;
             }).join('');
         }
 
         function filterTable() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#tableBody tr');
-
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(input) ? '' : 'none';
-            });
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = allProducts.filter(p => 
+                (p.c_ProductName && p.c_ProductName.toLowerCase().includes(query)) ||
+                (p.i_ProductID && p.i_ProductID.toString().includes(query))
+            );
+            renderTable(filtered);
         }
 
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str)
+        function showErrorState(msg) {
+            const tableBody = document.getElementById('tableBody');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorDetail = document.getElementById('errorDetail');
+
+            tableBody.innerHTML = '';
+            errorDetail.innerText = msg;
+            errorContainer.classList.remove('hidden');
+        }
+
+        function escapeHtml(text) {
+            return String(text)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
