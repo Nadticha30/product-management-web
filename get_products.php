@@ -13,7 +13,7 @@ try {
             s.c_CompanyName AS c_SupplierName,
             p.f_Price,
             p.i_UnitsInStock,
-            p.c_QuantityPerUnit
+            '' AS c_QuantityPerUnit
         FROM tb_products p
         LEFT JOIN tb_categories c ON p.i_CategoryID = c.i_CategoryID
         LEFT JOIN tb_suppliers s ON p.i_SupplierID = s.i_SupplierID
