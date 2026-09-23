@@ -148,7 +148,7 @@
 
         async function loadDashboardData() {
             const refreshIcon = document.getElementById('refresh-icon');
-            refreshIcon.classList.add('fa-spin');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
             try {
                 const response = await fetch('get_products.php');
@@ -158,37 +158,44 @@
                     renderKPIs(result.stats);
                     renderTable(result.data);
                 } else {
-                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                    showErrorState(result.message || 'ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
-                document.getElementById('tableBody').innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center py-8 text-red-500">
-                            <i class="fa-solid fa-circle-xmark text-2xl mb-2"></i>
-                            <p>ไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้</p>
-                        </td>
-                    </tr>`;
+                showErrorState('ไม่สามารถเชื่อมต่อ get_products.php ได้ กรุณาตรวจสอบว่าเปิดผ่าน URL ของ Railway แล้วหรือไม่');
             } finally {
-                setTimeout(() => refreshIcon.classList.remove('fa-spin'), 500);
+                if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 500);
             }
         }
 
+        function showErrorState(msg) {
+            document.getElementById('tableBody').innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-8 text-red-500">
+                        <i class="fa-solid fa-circle-xmark text-3xl mb-2"></i>
+                        <p class="font-bold text-base">ไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้</p>
+                        <p class="text-xs text-gray-600 mt-1 max-w-md mx-auto bg-red-50 p-2 rounded border border-red-200">${escapeHtml(msg)}</p>
+                        <p class="text-xs text-emerald-700 mt-3 font-medium">💡 คำแนะนำ: กด F12 แล้วดูที่แท็บ Console หรือ Network เพื่อดูข้อผิดพลาด</p>
+                    </td>
+                </tr>`;
+        }
+
         function renderKPIs(stats) {
-            document.getElementById('kpi-total-products').innerText = Number(stats.total_products).toLocaleString();
-            document.getElementById('kpi-total-value').innerText = '฿' + Number(stats.total_value).toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('kpi-total-categories').innerText = Number(stats.total_categories).toLocaleString();
-            document.getElementById('kpi-low-stock').innerText = Number(stats.low_stock_count).toLocaleString();
+            if (!stats) return;
+            document.getElementById('kpi-total-products').innerText = Number(stats.total_products || 0).toLocaleString();
+            document.getElementById('kpi-total-value').innerText = '฿' + Number(stats.total_value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('kpi-total-categories').innerText = Number(stats.total_categories || 0).toLocaleString();
+            document.getElementById('kpi-low-stock').innerText = Number(stats.low_stock_count || 0).toLocaleString();
         }
 
         function renderTable(products) {
             const tbody = document.getElementById('tableBody');
-            
-            if (products.length === 0) {
+            if (!products || products.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" class="text-center py-8 text-gray-400">
-                            ยังไม่มีข้อมูลสินค้าในระบบ
+                            <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+                            <p>ยังไม่มีรายการสินค้าในระบบ</p>
                         </td>
                     </tr>`;
                 return;
@@ -196,47 +203,53 @@
 
             tbody.innerHTML = products.map(item => {
                 const stock = parseInt(item.i_UnitsInStock || 0);
-                let statusBadge = '';
-                
+                let badgeClass = 'bg-emerald-100 text-emerald-800';
+                let statusText = 'พร้อมจำหน่าย';
+
                 if (stock === 0) {
-                    statusBadge = '<span class="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">สินค้าหมด</span>';
+                    badgeClass = 'bg-red-100 text-red-800';
+                    statusText = 'สินค้าหมด';
                 } else if (stock <= 5) {
-                    statusBadge = '<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">ใกล้หมด</span>';
-                } else {
-                    statusBadge = '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">พร้อมจำหน่าย</span>';
+                    badgeClass = 'bg-amber-100 text-amber-800';
+                    statusText = 'สินค้าใกล้หมด';
                 }
 
                 return `
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="py-3 px-4 font-semibold text-emerald-800">#${item.i_ProductID}</td>
+                        <td class="py-3 px-4 font-mono text-xs text-gray-500">#${escapeHtml(item.i_ProductID)}</td>
                         <td class="py-3 px-4 font-medium text-gray-900">${escapeHtml(item.c_ProductName)}</td>
-                        <td class="py-3 px-4 text-gray-500">Cat #${item.i_CategoryID}</td>
-                        <td class="py-3 px-4 text-gray-500">Sup #${item.i_SupplierID}</td>
-                        <td class="py-3 px-4 text-right font-medium">฿${parseFloat(item.f_Price).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                        <td class="py-3 px-4 text-center font-bold ${stock <= 5 ? 'text-amber-600' : 'text-gray-800'}">${stock}</td>
+                        <td class="py-3 px-4 text-gray-600">หมวดหมู่ #${escapeHtml(item.i_CategoryID)}</td>
+                        <td class="py-3 px-4 text-gray-600">SUP-${escapeHtml(item.i_SupplierID)}</td>
+                        <td class="py-3 px-4 text-right font-medium text-emerald-700">฿${Number(item.f_Price).toFixed(2)}</td>
+                        <td class="py-3 px-4 text-center font-semibold ${stock <= 5 ? 'text-amber-600' : 'text-gray-700'}">${stock}</td>
                         <td class="py-3 px-4 text-center text-gray-500">${escapeHtml(item.c_Unit || '-')}</td>
-                        <td class="py-3 px-4 text-center">${statusBadge}</td>
-                    </tr>
-                `;
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                    </tr>`;
             }).join('');
         }
 
         function filterTable() {
             const input = document.getElementById('searchInput').value.toLowerCase();
-            const table = document.getElementById('productTable');
-            const trs = table.getElementsByTagName('tr');
+            const rows = document.querySelectorAll('#tableBody tr');
 
-            for (let i = 1; i < trs.length; i++) {
-                const text = trs[i].innerText.toLowerCase();
-                trs[i].style.display = text.includes(input) ? '' : 'none';
-            }
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/[&<>"']/g, function(m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-            });
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
     </script>
 </body>
