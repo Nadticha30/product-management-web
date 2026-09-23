@@ -112,6 +112,13 @@
                            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
                 </div>
             </div>
+            
+            <!-- ปุ่มสลับการแสดงผลข้อมูล -->
+<div style="margin-bottom: 15px; display: flex; gap: 10px;">
+  <button type="button" id="btn-all" class="btn btn-primary" onclick="filterProducts('all')">สินค้าทั้งหมด</button>
+  <button type="button" id="btn-northwind" class="btn btn-outline-primary" onclick="filterProducts('northwind')">สินค้า Northwind</button>
+  <button type="button" id="btn-test" class="btn btn-outline-primary" onclick="filterProducts('test')">สินค้าทดสอบ</button>
+</div>
 
             <!-- Table Section -->
             <div class="overflow-x-auto">
