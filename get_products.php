@@ -7,50 +7,75 @@ header('Content-Type: application/json; charset=utf-8');
 try {
     require_once "ConnDB.php";
 
-    $stmt = $conn->query("SELECT * FROM tb_products ORDER BY 1 DESC");
+    try {
+        $stmt = $conn->query("SELECT * FROM tb_products ORDER BY 1 DESC");
+    } catch (Throwable $e) {
+        $stmt = $conn->query("SELECT * FROM products ORDER BY 1 DESC");
+    }
+
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $result = [];
     foreach ($products as $row) {
-        // ปรับเป็นอักษรพิมพ์เล็กเพื่อแมปคีย์ได้ถูกต้องแน่นอน
-        $lRow = [];
+        $id = 0; $name = ''; $cat = 0; $sup = 0; $unit = ''; $price = 0.0; $stock = 0;
+
         foreach ($row as $k => $v) {
-            $lRow[strtolower($k)] = $v;
-        }
+            $lk = strtolower($k);
 
-        $id   = $lRow['productid'] ?? $lRow['i_productid'] ?? $lRow['id'] ?? reset($row);
-        $name = $lRow['productname'] ?? $lRow['c_productname'] ?? $lRow['name'] ?? '';
-        $cat  = $lRow['categoryid'] ?? $lRow['i_categoryid'] ?? $lRow['catid'] ?? 0;
-        $sup  = $lRow['supplierid'] ?? $lRow['i_supplierid'] ?? $lRow['supid'] ?? 0;
-        $unit = $lRow['quantityperunit'] ?? $lRow['c_unit'] ?? $lRow['unit'] ?? '';
-
-        // ดึงราคา
-        $price = 0.0;
-        foreach (['unitprice', 'f_unitprice', 'f_price', 'price'] as $pk) {
-            if (isset($lRow[$pk]) && $lRow[$pk] !== null && $lRow[$pk] !== '') {
-                $price = floatval($lRow[$pk]);
-                break;
+            // 1. ดึงราคา (รองรับ UnitPrice, f_UnitPrice, f_Price, Price)
+            if (strpos($lk, 'price') !== false) {
+                if ($v !== null && $v !== '') $price = floatval($v);
+            }
+            // 2. ดึงจำนวนคงเหลือ (รองรับ UnitsInStock, i_UnitsInStock, Quantity, Stock)
+            elseif (strpos($lk, 'stock') !== false || strpos($lk, 'quantity') !== false || $lk === 'stock') {
+                if (strpos($lk, 'perunit') === false && strpos($lk, 'c_unit') === false && $lk !== 'unit') {
+                    if ($v !== null && $v !== '' && is_numeric($v)) {
+                        $stock = intval($v);
+                    }
+                }
+            }
+            // 3. ดึงหน่วยนับ (รองรับ QuantityPerUnit, c_Unit, Unit)
+            elseif (strpos($lk, 'unit') !== false || strpos($lk, 'perunit') !== false) {
+                if (strpos($lk, 'price') === false && strpos($lk, 'stock') === false) {
+                    if ($v !== null) $unit = (string)$v;
+                }
+            }
+            // 4. ดึงชื่อสินค้า
+            elseif (strpos($lk, 'name') !== false) {
+                if ($v !== null) $name = (string)$v;
+            }
+            // 5. ดึงหมวดหมู่
+            elseif (strpos($lk, 'cat') !== false) {
+                if ($v !== null) $cat = $v;
+            }
+            // 6. ดึงผู้จัดจำหน่าย
+            elseif (strpos($lk, 'supplier') !== false || strpos($lk, 'sup') !== false) {
+                if ($v !== null) $sup = $v;
+            }
+            // 7. ดึง รหัสสินค้า
+            elseif (strpos($lk, 'id') !== false || $lk === 'id') {
+                if ($v !== null) $id = $v;
             }
         }
 
-        // ดึงจำนวนคงเหลือ (แก้บั๊ก UnitsInStock แล้ว)
-        $stock = 0;
-        foreach (['unitsinstock', 'i_unitsinstock', 'quantity', 'i_quantity', 'stock', 'unitsinorder'] as $sk) {
-            if (isset($lRow[$sk]) && $lRow[$sk] !== null && $lRow[$sk] !== '') {
-                $stock = intval($lRow[$sk]);
-                break;
-            }
+        if ($id === 0 && !empty($row)) {
+            $id = reset($row);
         }
 
+        // ส่งออก JSON ครบทุกรูปแบบคีย์
         $result[] = [
             'i_ProductID'     => $id,
             'ProductID'       => $id,
+            'id'              => $id,
             'c_ProductName'   => $name,
             'ProductName'     => $name,
+            'name'            => $name,
             'i_CategoryID'    => $cat,
             'CategoryID'      => $cat,
+            'CatID'           => $cat,
             'i_SupplierID'    => $sup,
             'SupplierID'      => $sup,
+            'SupID'           => $sup,
             'c_Unit'          => $unit,
             'QuantityPerUnit' => $unit,
             'Unit'            => $unit,
@@ -60,7 +85,8 @@ try {
             'f_UnitPrice'     => $price,
             'i_UnitsInStock'  => $stock,
             'UnitsInStock'    => $stock,
-            'Quantity'        => $stock
+            'Quantity'        => $stock,
+            'Stock'           => $stock
         ];
     }
 
