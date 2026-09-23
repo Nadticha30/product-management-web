@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ระบบจัดการข้อมูลสินค้า</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Navbar Header -->
+    <nav class="bg-emerald-800 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-boxes-stacked text-2xl text-emerald-300"></i>
+                    <span class="font-bold text-xl tracking-wide">Northwind Management</span>
+                </div>
+                <div class="flex space-x-2">
+                    <a href="dashboard.html" class="bg-emerald-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="product_insert_api.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> เพิ่มสินค้าใหม่
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header Title -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">แดชบอร์ดภาพรวมคลังสินค้า</h1>
+                <p class="text-gray-500 text-sm">แสดงสรุปสถิติและรายการสินค้าทั้งหมดจากฐานข้อมูล MySQL</p>
+            </div>
+            <button onclick="loadDashboardData()" class="mt-4 md:mt-0 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 shadow-sm">
+                <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> รีเฟรชข้อมูล
+            </button>
+        </div>
+
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <!-- Total Products -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">จำนวนสินค้าทั้งหมด</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-total-products">0</h3>
+                    <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-circle-check"></i> ในระบบ</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-box"></i>
+                </div>
+            </div>
+
+            <!-- Total Value -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">มูลค่าสินค้าในคลัง</p>
+                    <h3 class="text-2xl font-bold text-emerald-700 mt-1" id="kpi-total-value">฿0.00</h3>
+                    <p class="text-xs text-gray-400 mt-1">คำนวณจาก (ราคา x จำนวน)</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-lg flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+            </div>
+
+            <!-- Total Categories -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">หมวดหมู่สินค้า</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-total-categories">0</h3>
+                    <p class="text-xs text-gray-400 mt-1">ที่มีสินค้าคงเหลือ</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+            </div>
+
+            <!-- Low Stock -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">สินค้าใกล้หมด (<=5)</p>
+                    <h3 class="text-2xl font-bold text-amber-600 mt-1" id="kpi-low-stock">0</h3>
+                    <p class="text-xs text-amber-500 mt-1"><i class="fa-solid fa-triangle-exclamation"></i> ควรสั่งซื้อเพิ่ม</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-lg flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            
+            <!-- Table Action Bar -->
+            <div class="p-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-emerald-600"></i> ตารางรายการสินค้าทั้งหมด
+                </h2>
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาชื่อสินค้า / รหัส..." 
+                           class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="productTable">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider border-b border-gray-200">
+                            <th class="py-3 px-4 font-semibold">รหัสสินค้า</th>
+                            <th class="py-3 px-4 font-semibold">ชื่อสินค้า</th>
+                            <th class="py-3 px-4 font-semibold">หมวดหมู่</th>
+                            <th class="py-3 px-4 font-semibold">ผู้จัดจำหน่าย</th>
+                            <th class="py-3 px-4 font-semibold text-right">ราคา/หน่วย</th>
+                            <th class="py-3 px-4 font-semibold text-center">คงเหลือ</th>
+                            <th class="py-3 px-4 font-semibold text-center">หน่วยนับ</th>
+                            <th class="py-3 px-4 font-semibold text-center">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                        <tr>
+                            <td colspan="8" class="text-center py-8 text-gray-400">
+                                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                                <p>กำลังโหลดข้อมูลสินค้า...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+
+        async function loadDashboardData() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.classList.add('fa-spin');
+
+            try {
+                const response = await fetch('get_products.php');
+                const result = await response.json();
+
+                if (result.success) {
+                    renderKPIs(result.stats);
+                    renderTable(result.data);
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('tableBody').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-red-500">
+                            <i class="fa-solid fa-circle-xmark text-2xl mb-2"></i>
+                            <p>ไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้</p>
+                        </td>
+                    </tr>`;
+            } finally {
+                setTimeout(() => refreshIcon.classList.remove('fa-spin'), 500);
+            }
+        }
+
+        function renderKPIs(stats) {
+            document.getElementById('kpi-total-products').innerText = Number(stats.total_products).toLocaleString();
+            document.getElementById('kpi-total-value').innerText = '฿' + Number(stats.total_value).toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpi-total-categories').innerText = Number(stats.total_categories).toLocaleString();
+            document.getElementById('kpi-low-stock').innerText = Number(stats.low_stock_count).toLocaleString();
+        }
+
+        function renderTable(products) {
+            const tbody = document.getElementById('tableBody');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-gray-400">
+                            ยังไม่มีข้อมูลสินค้าในระบบ
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = products.map(item => {
+                const stock = parseInt(item.i_UnitsInStock || 0);
+                let statusBadge = '';
+                
+                if (stock === 0) {
+                    statusBadge = '<span class="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">สินค้าหมด</span>';
+                } else if (stock <= 5) {
+                    statusBadge = '<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">ใกล้หมด</span>';
+                } else {
+                    statusBadge = '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">พร้อมจำหน่าย</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 font-semibold text-emerald-800">#${item.i_ProductID}</td>
+                        <td class="py-3 px-4 font-medium text-gray-900">${escapeHtml(item.c_ProductName)}</td>
+                        <td class="py-3 px-4 text-gray-500">Cat #${item.i_CategoryID}</td>
+                        <td class="py-3 px-4 text-gray-500">Sup #${item.i_SupplierID}</td>
+                        <td class="py-3 px-4 text-right font-medium">฿${parseFloat(item.f_Price).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                        <td class="py-3 px-4 text-center font-bold ${stock <= 5 ? 'text-amber-600' : 'text-gray-800'}">${stock}</td>
+                        <td class="py-3 px-4 text-center text-gray-500">${escapeHtml(item.c_Unit || '-')}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('productTable');
+            const trs = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < trs.length; i++) {
+                const text = trs[i].innerText.toLowerCase();
+                trs[i].style.display = text.includes(input) ? '' : 'none';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+</body>
+</html>
