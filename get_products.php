@@ -11,48 +11,52 @@ try {
 
     $result = [];
     foreach ($products as $row) {
-        $item = $row; // เก็บข้อมูลดั้งเดิมไว้ทั้งหมด
+        $item = $row; 
         
         $price = 0.0;
         $stock = 0;
         $name = '';
         $unit = '';
         
-        // 1. ดึงสต็อก (แก้ไขใหม่: ล็อกเป้าหาเฉพาะคอลัมน์สต็อก ถ้าเจอแล้วหยุดเลยเพื่อป้องกันค่าโดนทับ)
-        $stockCols = ['unitsinstock', 'quantity', 'stock', 'i_unitsinstock', 'i_quantity', 'qty', 'amount'];
-        $foundStock = false;
-        foreach ($stockCols as $sc) {
-            foreach ($row as $k => $v) {
-                if (strtolower($k) === $sc) {
-                    if ($v !== null && $v !== '') {
-                        $stock = intval($v);
-                        $foundStock = true;
-                        break;
-                    }
-                }
-            }
-            if ($foundStock) break;
-        }
-
-        // 2. ดึงข้อมูลอื่นๆ (คงของเดิมที่ทำงานได้ดีอยู่แล้วไว้)
+        // 1. หา "คงเหลือ" (ค้นหาแบบกว้าง แต่ถ้าเจอแล้วล็อคค่าทันที)
         foreach ($row as $k => $v) {
             $lk = strtolower($k);
             
-            if (strpos($lk, 'price') !== false) {
-                if ($v !== null && $v !== '') $price = floatval($v);
-            } elseif (strpos($lk, 'name') !== false) {
-                if ($v !== null) $name = $v;
-            } elseif (strpos($lk, 'unit') !== false && strpos($lk, 'price') === false && strpos($lk, 'stock') === false && strpos($lk, 'unitsinstock') === false) {
-                if ($v !== null) $unit = $v;
+            // ข้ามคอลัมน์ที่เกี่ยวกับหน่วยนับ (ป้องกันการมอง QuantityPerUnit เป็นสต็อก)
+            if (strpos($lk, 'perunit') !== false || $lk === 'unit' || $lk === 'c_unit') {
+                continue;
             }
             
-            // กรณีชื่อคอลัมน์สต็อกแปลกประหลาดที่หาจากขั้นตอนแรกไม่เจอ
-            if (!$foundStock && (strpos($lk, 'stock') !== false || strpos($lk, 'qty') !== false)) {
-                if ($v !== null && $v !== '') $stock = intval($v);
+            // ถ้าคอลัมน์มีคำว่า stock, quant, qty และค่าไม่ใช่ค่าว่าง
+            if (strpos($lk, 'stock') !== false || strpos($lk, 'quant') !== false || strpos($lk, 'qty') !== false) {
+                if (is_numeric($v)) {
+                    $stock = (int)$v;
+                    break; // เจอตัวเลขสต็อกแล้ว หยุดหาคอลัมน์อื่นทันที
+                }
             }
         }
 
-        // 3. แมปค่ากลับเข้าไปใน Key มาตรฐานที่หน้าเว็บต้องการ
+        // 2. หา "ราคา"
+        foreach ($row as $k => $v) {
+            $lk = strtolower($k);
+            if (strpos($lk, 'price') !== false && is_numeric($v)) {
+                $price = (float)$v;
+                break;
+            }
+        }
+
+        // 3. หา "ชื่อสินค้า" และ "หน่วยนับ"
+        foreach ($row as $k => $v) {
+            $lk = strtolower($k);
+            if (strpos($lk, 'name') !== false) {
+                $name = $v;
+            }
+            if (strpos($lk, 'unit') !== false && strpos($lk, 'price') === false && strpos($lk, 'stock') === false) {
+                $unit = $v;
+            }
+        }
+
+        // 4. แมปค่าส่งกลับให้หน้าเว็บ
         $item['Price'] = $price;
         $item['UnitPrice'] = $price;
         $item['f_Price'] = $price;
