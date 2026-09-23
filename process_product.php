@@ -22,8 +22,8 @@ if ($productName === '' || $supplierId === '' || $catId === '' || $unit === '' |
 }
 
 try {
-    // แก้ไข f_Price เป็น f_UnitPrice ให้ตรงกับโครงสร้างตาราง tb_products
-    $sql = "INSERT INTO tb_products (c_ProductName, i_SupplierID, i_CategoryID, c_Unit, f_UnitPrice, i_UnitsInStock)
+    // แก้ไขใช้ f_Price ตามโครงสร้างตาราง tb_products
+    $sql = "INSERT INTO tb_products (c_ProductName, i_SupplierID, i_CategoryID, c_Unit, f_Price, i_UnitsInStock)
             VALUES (:productName, :supplierId, :catId, :unit, :price, :quantity)";
 
     $stmt = $conn->prepare($sql);
