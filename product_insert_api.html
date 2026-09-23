@@ -236,18 +236,7 @@
         function closeModal() {
             document.getElementById('successModal').classList.add('hidden');
         }
-        let allProductsData = [];
-function filterProducts(type) {
-  if (type === 'northwind') {
-    const northwindData = allProductsData.filter(p => (p.ProductID || p.f_ProductID) <= 77);
-    renderTable(northwindData); 
-  } else if (type === 'test') {
-    const testData = allProductsData.filter(p => (p.ProductID || p.f_ProductID) > 77);
-    renderTable(testData);
-  } else {
-    renderTable(allProductsData);
-  }
-}
+        
     </script>
 </body>
 </html>
