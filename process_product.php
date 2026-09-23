@@ -1,5 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
 
 try {
     require_once "ConnDB.php";
@@ -21,46 +23,47 @@ try {
         exit;
     }
 
-    // อ่านโครงสร้างคอลัมน์จริงจากฐานข้อมูล MySQL Direct
-    $stmtCols =$conn->query("DESCRIBE tb_products");
-    $rawCols = $stmtCols->fetchAll(PDO::FETCH_COLUMN);$colMap = [];
-    foreach ($rawCols as $col) {$colMap[strtolower($col)] =$col;
+    // 1. อ่านตัวอย่างคอลัมน์ที่มีอยู่จริงในตาราง tb_products
+    $stmtCheck =$conn->query("SELECT * FROM tb_products LIMIT 1");
+    $sample = $stmtCheck->fetch(PDO::FETCH_ASSOC);$cols = $sample ? array_keys($sample) : [];
+
+    // 2. แมปชื่อคอลัมน์จริงพร้อมค่าตั้งต้นสำรอง (Prevent Null Column)
+    $colName  = 'ProductName';
+    foreach (['c_ProductName', 'ProductName', 'name'] as $c) {
+        if (in_array($c,$cols)) { $colName =$c; break; }
     }
 
-    $findRealCol = function($aliases) use ($colMap) {
-        foreach ($aliases as$alias) {
-            $low = strtolower($alias);
-            if (isset($colMap[$low])) return $colMap[$low];
-        }
-        return null;
-    };
-
-    // จับคู่คอลัมน์จริงใน DB
-    $cName  =$findRealCol(['ProductName', 'c_ProductName', 'Name']);
-    $cSup   =$findRealCol(['SupplierID', 'i_SupplierID']);
-    $cCat   =$findRealCol(['CategoryID', 'i_CategoryID']);
-    $cUnit  =$findRealCol(['QuantityPerUnit', 'c_Unit', 'Unit']);
-    $cPrice =$findRealCol(['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price']);
-    $cStock =$findRealCol(['UnitsInStock', 'i_UnitsInStock', 'Quantity', 'Stock']);
-
-    $insertData = [];
-    if ($cName)$insertData[$cName]  =$productName;
-    if ($cSup)$insertData[$cSup]   =$supplierId;
-    if ($cCat)$insertData[$cCat]   =$catId;
-    if ($cUnit)$insertData[$cUnit]  =$unit;
-    if ($cPrice)$insertData[$cPrice] =$price;
-    if ($cStock)$insertData[$cStock] =$quantity;
-
-    $colsList = implode("`, `", array_keys($insertData));
-    $placeholders = ":" . implode(", :", array_keys($insertData));
-
-    $sql = "INSERT INTO tb_products (`{$colsList}`) VALUES ({$placeholders})";
-    $stmt = $conn->prepare($sql);
-
-    foreach ($insertData as$colKey => $val) {$stmt->bindValue(":" . $colKey,$val);
+    $colSup   = 'SupplierID';
+    foreach (['i_SupplierID', 'SupplierID'] as $c) {
+        if (in_array($c,$cols)) { $colSup =$c; break; }
     }
 
-    $stmt->execute();
+    $colCat   = 'CategoryID';
+    foreach (['i_CategoryID', 'CategoryID', 'CatID'] as $c) {
+        if (in_array($c,$cols)) { $colCat =$c; break; }
+    }
+
+    $colUnit  = 'QuantityPerUnit';
+    foreach (['QuantityPerUnit', 'c_Unit', 'Unit'] as $c) {
+        if (in_array($c,$cols)) { $colUnit =$c; break; }
+    }
+
+    $colPrice = 'UnitPrice';
+    foreach (['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price'] as $c) {
+        if (in_array($c,$cols)) { $colPrice =$c; break; }
+    }
+
+    $colStock = 'UnitsInStock';
+    foreach (['UnitsInStock', 'i_UnitsInStock', 'Quantity', 'Stock'] as $c) {
+        if (in_array($c,$cols)) { $colStock =$c; break; }
+    }
+
+    // 3. ทำการ Insert ข้อมูล
+    $sql = "INSERT INTO tb_products (`$colName`, `$colSup`, `$colCat`, `$colUnit`, `$colPrice`, `$colStock`) 
+            VALUES (:productName, :supplierId, :catId, :unit, :price, :quantity)";
+
+    $stmt =$conn->prepare($sql);$stmt->bindValue(':productName', $productName, PDO::PARAM_STR);$stmt->bindValue(':supplierId', $supplierId, PDO::PARAM_INT);$stmt->bindValue(':catId', $catId, PDO::PARAM_INT);$stmt->bindValue(':unit', $unit, PDO::PARAM_STR);$stmt->bindValue(':price', $price);$stmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);$stmt->execute();
+
     $lastId =$conn->lastInsertId();
 
     echo json_encode([
@@ -69,10 +72,10 @@ try {
         'message' => 'บันทึกข้อมูลสินค้าเรียบร้อยแล้ว'
     ], JSON_UNESCAPED_UNICODE);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()
+        'message' => 'เกิดข้อผิดพลาดจาก Server: ' . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }
 ?>
