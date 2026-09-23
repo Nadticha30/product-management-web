@@ -155,9 +155,6 @@
                 <p class="text-xs text-red-600 max-w-lg mx-auto bg-white p-3 rounded-lg border border-red-200 font-mono mt-2" id="errorDetail">
                     ข้อผิดพลาด HTTP 500
                 </p>
-                <div class="mt-4 text-xs text-gray-500 space-y-1">
-                    <p>💡 <b>วิธีตรวจสอบ:</b> กด <b>F12</b> &rarr; แท็บ <b>Network</b> &rarr; คลิก <code>get_products.php</code> &rarr; แท็บ <b>Response</b></p>
-                </div>
             </div>
 
         </div>
@@ -169,6 +166,18 @@
 
         document.addEventListener('DOMContentLoaded', loadDashboardData);
 
+        // ดึงค่าราคาจากทุกชื่อคอลัมน์ที่เป็นไปได้
+        function getItemPrice(p) {
+            const val = p.f_Price ?? p.f_UnitPrice ?? p.UnitPrice ?? p.Price ?? 0;
+            return parseFloat(val) || 0;
+        }
+
+        // ดึงค่าจำนวนคงเหลือจากทุกชื่อคอลัมน์ที่เป็นไปได้
+        function getItemStock(p) {
+            const val = p.i_UnitsInStock ?? p.UnitsInStock ?? p.i_Quantity ?? p.Quantity ?? 0;
+            return parseInt(val) || 0;
+        }
+
         async function loadDashboardData() {
             const refreshIcon = document.getElementById('refresh-icon');
             const errorContainer = document.getElementById('errorContainer');
@@ -178,21 +187,12 @@
 
             try {
                 const response = await fetch('get_products.php');
-                const contentType = response.headers.get('content-type');
-                
                 if (!response.ok) {
                     const rawText = await response.text();
-                    throw new Error(`Server Error (Status ${response.status}): ${rawText.substring(0, 200)}`);
+                    throw new Error(`Server Error (${response.status}): ${rawText.substring(0, 200)}`);
                 }
 
-                let data;
-                if (contentType && contentType.includes('application/json')) {
-                    data = await response.json();
-                } else {
-                    const rawText = await response.text();
-                    throw new Error(`Server ส่งข้อมูลที่ไม่ใช่ JSON: ${rawText.substring(0, 200)}`);
-                }
-
+                const data = await response.json();
                 allProducts = Array.isArray(data) ? data : (data.data || []);
                 
                 calculateAndRenderKPIs(allProducts);
@@ -213,8 +213,8 @@
             let lowStockCount = 0;
 
             products.forEach(p => {
-                const stock = parseInt(p.i_UnitsInStock || p.UnitsInStock || 0);
-                const price = parseFloat(p.f_Price || p.UnitPrice || 0);
+                const stock = getItemStock(p);
+                const price = getItemPrice(p);
                 const catId = p.i_CategoryID || p.CategoryID;
 
                 totalValue += (stock * price);
@@ -250,8 +250,8 @@
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
             const filtered = allProducts.filter(p => {
-                const id = (p.i_ProductID || p.ProductID || '').toString();
-                const name = (p.c_ProductName || p.ProductName || '').toLowerCase();
+                const id = (p.i_ProductID || p.ProductID || p.f_ProductID || '').toString();
+                const name = (p.c_ProductName || p.ProductName || p.f_ProductName || '').toLowerCase();
                 const matchesSearch = name.includes(query) || id.includes(query);
 
                 let matchesType = true;
@@ -284,13 +284,13 @@
             }
 
             tableBody.innerHTML = products.map(p => {
-                const id = p.i_ProductID || p.ProductID || 0;
-                const name = p.c_ProductName || p.ProductName || '';
-                const catId = p.i_CategoryID || p.CategoryID || '-';
-                const supId = p.i_SupplierID || p.SupplierID || '-';
-                const price = parseFloat(p.f_Price || p.UnitPrice || 0);
-                const stock = parseInt(p.i_UnitsInStock || p.UnitsInStock || 0);
-                const unit = p.c_Unit || p.QuantityPerUnit || 'ชิ้น';
+                const id = p.i_ProductID || p.ProductID || p.f_ProductID || 0;
+                const name = p.c_ProductName || p.ProductName || p.f_ProductName || '';
+                const catId = p.i_CategoryID || p.CategoryID || p.f_CategoryID || '-';
+                const supId = p.i_SupplierID || p.SupplierID || p.f_SupplierID || '-';
+                const price = getItemPrice(p);
+                const stock = getItemStock(p);
+                const unit = p.c_Unit || p.QuantityPerUnit || p.f_Unit || 'ชิ้น';
 
                 let stockBadge = stock <= 5 
                     ? `<span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">ใกล้หมด</span>`
