@@ -20,33 +20,60 @@ try {
         exit;
     }
 
-    // อ่านชื่อคอลัมน์จริงจากฐานข้อมูล
-    $stmtCols =$conn->query("SHOW COLUMNS FROM tb_products");
-    $cols =$stmtCols->fetchAll(PDO::FETCH_COLUMN);
-
-    // ค่าเริ่มต้นของชื่อคอลัมน์
-    $cName = 'ProductName';$cSup = 'SupplierID'; $cCat = 'CategoryID';$cUnit = 'QuantityPerUnit'; $cPrice = 'UnitPrice';$cStock = 'UnitsInStock';
-
-    // จับคู่ชื่อคอลัมน์เป๊ะๆ ป้องกันการบันทึกลงผิดช่อง
-    foreach ($cols as$col) {
-        $lk = strtolower($col);
-        if (in_array($lk, ['productname', 'name', 'c_productname'])) $cName =$col;
-        if (in_array($lk, ['supplierid', 'supid', 'i_supplierid'])) $cSup =$col;
-        if (in_array($lk, ['categoryid', 'catid', 'i_categoryid'])) $cCat =$col;
-        if (in_array($lk, ['quantityperunit', 'unit', 'c_unit'])) $cUnit =$col;
-        if (in_array($lk, ['unitprice', 'price', 'f_price'])) $cPrice =$col;
-        if (in_array($lk, ['unitsinstock', 'quantity', 'stock', 'i_unitsinstock'])) $cStock =$col;
+    // 1. ดึงชื่อคอลัมน์ "ที่มีอยู่จริง" ในตาราง เพื่อป้องกัน Error 1054
+    $stmtCols =$conn->query("SELECT * FROM tb_products LIMIT 0");
+    $cols = [];
+    for ($i = 0; $i <$stmtCols->columnCount(); $i++) {$meta = $stmtCols->getColumnMeta($i);
+        if ($meta) $cols[] =$meta['name'];
     }
 
-    // กรองเอาเฉพาะตัวเลข (แก้บั๊กกรณีหน้าเว็บส่งข้อความ SUP001 / CAT02 มา)
+    // 2. ฟังก์ชันค้นหาคอลัมน์อัตโนมัติ
+    function findCol($cols, $keywords,$exclude = []) {
+        foreach ($cols as $col) {$lk = strtolower($col);$isExcluded = false;
+            foreach ($exclude as$ex) {
+                if (strpos($lk, $ex) !== false)$isExcluded = true;
+            }
+            if ($isExcluded) continue;
+            
+            foreach ($keywords as$kw) {
+                if (strpos($lk, $kw) !== false) return$col;
+            }
+        }
+        return null;
+    }
+
+    // 3. จับคู่คอลัมน์จริงกับข้อมูล
+    $cName  = findCol($cols, ['name']);
+    $cSup   = findCol($cols, ['sup']);
+    $cCat   = findCol($cols, ['cat']);
+    $cPrice = findCol($cols, ['price']);
+    $cStock = findCol($cols, ['stock']);
+    if (!$cStock) $cStock = findCol($cols, ['quantity'], ['unit', 'per']); // ป้องกันไปชนกับ QuantityPerUnit
+    $cUnit  = findCol($cols, ['unit', 'perunit'], ['price', 'stock']);
+
     $supInt = intval(preg_replace('/[^0-9]/', '',$rawSupplier));
     $catInt = intval(preg_replace('/[^0-9]/', '',$rawCat));
 
-    $sql = "INSERT INTO tb_products (`$cName`, `$cSup`, `$cCat`, `$cUnit`, `$cPrice`, `$cStock`) 
-            VALUES (:name, :sup, :cat, :unit, :price, :qty)";
+    // 4. เตรียมข้อมูลที่จะบันทึก (เอาเฉพาะคอลัมน์ที่หาเจอเท่านั้น)
+    $insertData = [];
+    if ($cName)$insertData[$cName]  =$productName;
+    if ($cSup)   $insertData[$cSup]   = $supInt > 0 ?$supInt : 1;
+    if ($cCat)   $insertData[$cCat]   = $catInt > 0 ?$catInt : 1;
+    if ($cUnit)$insertData[$cUnit]  =$unit;
+    if ($cPrice)$insertData[$cPrice] = floatval($price);
+    if ($cStock)$insertData[$cStock] = intval($quantity);
+
+    // 5. บันทึกข้อมูล
+    $fields = array_keys($insertData);
+    $escapedFields = array_map(function($f) { return "`$f`"; }, $fields);
+    $placeholders  = array_map(function($f) { return ":$f"; }, $fields);
+
+    $sql = "INSERT INTO tb_products (" . implode(", ", $escapedFields) . ") VALUES (" . implode(", ", $placeholders) . ")";
+    $stmt = $conn->prepare($sql);
     
-    $stmt =$conn->prepare($sql);$stmt->bindValue(':name', $productName);$stmt->bindValue(':sup', $supInt > 0 ?$supInt : 1);
-    $stmt->bindValue(':cat',$catInt > 0 ? $catInt : 1);$stmt->bindValue(':unit', $unit);$stmt->bindValue(':price', floatval($price));$stmt->bindValue(':qty', intval($quantity));$stmt->execute();
+    foreach ($insertData as$col => $val) {$stmt->bindValue(":$col", $val);
+    }
+    $stmt->execute();
 
     ob_clean();
     echo json_encode([
@@ -57,7 +84,7 @@ try {
 
 } catch (Throwable $e) {
     ob_clean();
-    http_response_code(200); // บังคับส่ง 200 ให้หน้าเว็บอ่าน Error จริงๆ ออกมา ไม่ใช่ฟ้องแค่ Server Error
+    http_response_code(200); 
     echo json_encode([
         'success' => false, 
         'message' => 'DB Error: ' . $e->getMessage()
