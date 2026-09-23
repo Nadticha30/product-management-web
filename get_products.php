@@ -6,69 +6,77 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     require_once "ConnDB.php";
-    $stmt = $conn->query("SELECT * FROM tb_products ORDER BY 1 DESC");
-    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    try {
+        $stmt = $conn->query("SELECT * FROM tb_products ORDER BY 1 DESC");
+    } catch (Throwable $e) {
+        $stmt = $conn->query("SELECT * FROM products ORDER BY 1 DESC");
+    }
+
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $result = [];
+
     foreach ($products as $row) {
-        $item = $row; 
+        $item = $row; // เก็บข้อมูลดั้งเดิมไว้ทั้งหมด
         
-        $price = 0.0;
         $stock = 0;
-        $name = '';
-        $unit = '';
-        
-        // 1. หา "คงเหลือ" (ค้นหาแบบกว้าง แต่ถ้าเจอแล้วล็อคค่าทันที)
+        $price = 0.0;
+
+        // 1. ค้นหาค่าสต็อกจริงจากคอลัมน์ใน DB
         foreach ($row as $k => $v) {
-            $lk = strtolower($k);
-            
-            // ข้ามคอลัมน์ที่เกี่ยวกับหน่วยนับ (ป้องกันการมอง QuantityPerUnit เป็นสต็อก)
-            if (strpos($lk, 'perunit') !== false || $lk === 'unit' || $lk === 'c_unit') {
+            $lk = strtolower(trim($k));
+
+            // ข้ามคอลัมน์ที่เป็นข้อความหน่วยนับ (ป้องกันการเอา QuantityPerUnit มานับเป็นสต็อก)
+            if (strpos($lk, 'perunit') !== false || $lk === 'unit' || $lk === 'c_unit' || strpos($lk, 'unitname') !== false) {
                 continue;
             }
-            
-            // ถ้าคอลัมน์มีคำว่า stock, quant, qty และค่าไม่ใช่ค่าว่าง
-            if (strpos($lk, 'stock') !== false || strpos($lk, 'quant') !== false || strpos($lk, 'qty') !== false) {
-                if (is_numeric($v)) {
-                    $stock = (int)$v;
-                    break; // เจอตัวเลขสต็อกแล้ว หยุดหาคอลัมน์อื่นทันที
+
+            // เช็กคอลัมน์ที่เป็นสต็อก/จำนวน
+            if (in_array($lk, ['unitsinstock', 'i_unitsinstock', 'quantity', 'i_quantity', 'stock', 'i_stock', 'qty']) ||
+                strpos($lk, 'stock') !== false || strpos($lk, 'quant') !== false) {
+                
+                if ($v !== null && $v !== '' && is_numeric($v)) {
+                    $stock = intval($v);
+                    break;
                 }
             }
         }
 
-        // 2. หา "ราคา"
+        // 2. ค้นหาราคา
         foreach ($row as $k => $v) {
-            $lk = strtolower($k);
-            if (strpos($lk, 'price') !== false && is_numeric($v)) {
-                $price = (float)$v;
+            $lk = strtolower(trim($k));
+            if (strpos($lk, 'price') !== false && $v !== null && $v !== '' && is_numeric($v)) {
+                $price = floatval($v);
                 break;
             }
         }
 
-        // 3. หา "ชื่อสินค้า" และ "หน่วยนับ"
-        foreach ($row as $k => $v) {
-            $lk = strtolower($k);
-            if (strpos($lk, 'name') !== false) {
-                $name = $v;
-            }
-            if (strpos($lk, 'unit') !== false && strpos($lk, 'price') === false && strpos($lk, 'stock') === false) {
-                $unit = $v;
-            }
-        }
-
-        // 4. แมปค่าส่งกลับให้หน้าเว็บ
-        $item['Price'] = $price;
-        $item['UnitPrice'] = $price;
-        $item['f_Price'] = $price;
-        
-        $item['Quantity'] = $stock;
-        $item['UnitsInStock'] = $stock;
-        $item['Stock'] = $stock;
+        // 3. ปูพรมยัด Key สต็อกทุกรูปแบบภาษา JS (กัน JS หน้าเว็บอ่านไม่เจอ 100%)
+        $item['UnitsInStock']   = $stock;
+        $item['unitsInStock']   = $stock;
+        $item['unitsinstock']   = $stock;
         $item['i_UnitsInStock'] = $stock;
-
-        if (!isset($item['ProductName']) && $name !== '') $item['ProductName'] = $name;
-        if (!isset($item['Unit']) && $unit !== '') $item['Unit'] = $unit;
+        $item['i_unitsinstock'] = $stock;
         
+        $item['Quantity']       = $stock;
+        $item['quantity']       = $stock;
+        $item['i_Quantity']     = $stock;
+        
+        $item['Stock']          = $stock;
+        $item['stock']          = $stock;
+        $item['i_Stock']        = $stock;
+        
+        $item['Qty']            = $stock;
+        $item['qty']            = $stock;
+
+        // 4. ปูพรมยัด Key ราคา
+        $item['UnitPrice']      = $price;
+        $item['unitPrice']      = $price;
+        $item['f_UnitPrice']    = $price;
+        $item['Price']          = $price;
+        $item['price']          = $price;
+        $item['f_Price']        = $price;
+
         $result[] = $item;
     }
 
