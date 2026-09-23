@@ -1,54 +1,53 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-error_reporting(0);
-ini_set('display_errors', 0);
-
-require_once "ConnDB.php";
 
 try {
+    require_once "ConnDB.php";
+
     $stmt = $conn->query("SELECT * FROM tb_products ORDER BY 1 DESC");
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $result = [];
     foreach ($products as $row) {
-        $id   = $row['i_ProductID'] ?? $row['ProductID'] ?? $row['id'] ?? reset($row);
-        $name = $row['c_ProductName'] ?? $row['ProductName'] ?? '';
-        $cat  = $row['i_CategoryID'] ?? $row['CategoryID'] ?? 0;
-        $sup  = $row['i_SupplierID'] ?? $row['SupplierID'] ?? 0;
-        $unit = $row['c_Unit'] ?? $row['QuantityPerUnit'] ?? $row['Unit'] ?? '';
-
-        // ค้นหาราคาจริงจากทุกชื่อคอลัมน์ที่เป็นไปได้
-        $price = 0;
-        foreach (['UnitPrice', 'f_UnitPrice', 'f_Price', 'Price'] as $pKey) {
-            if (array_key_exists($pKey, $row) && $row[$pKey] !== null && $row[$pKey] !== '') {
-                $price = floatval($row[$pKey]);
-                break;
-            }
+        $lowerRow = [];
+        foreach ($row as $k => $v) {
+            $lowerRow[strtolower($k)] = $v;
         }
 
-        // ค้นหาจำนวนคงเหลือจริงจากทุกชื่อคอลัมน์ที่เป็นไปได้
-        $stock = 0;
-        foreach (['UnitsInStock', 'i_UnitsInStock', 'Quantity'] as $sKey) {
-            if (array_key_exists($sKey, $row) && $row[$sKey] !== null && $row[$sKey] !== '') {
-                $stock = intval($row[$sKey]);
-                break;
-            }
-        }
+        $id    = $lowerRow['productid'] ?? $lowerRow['i_productid'] ?? $lowerRow['id'] ?? reset($row);
+        $name  = $lowerRow['productname'] ?? $lowerRow['c_productname'] ?? $lowerRow['name'] ?? '';
+        $cat   = $lowerRow['categoryid'] ?? $lowerRow['i_categoryid'] ?? 0;
+        $sup   = $lowerRow['supplierid'] ?? $lowerRow['i_supplierid'] ?? 0;
+        $unit  = $lowerRow['quantityperunit'] ?? $lowerRow['c_unit'] ?? $lowerRow['unit'] ?? '';
+        
+        $price = floatval($lowerRow['unitprice'] ?? $lowerRow['f_unitprice'] ?? $lowerRow['f_price'] ?? $lowerRow['price'] ?? 0);
+        $stock = intval($lowerRow['unitsinstock'] ?? $lowerRow['i_unitsinstock'] ?? $lowerRow['quantity'] ?? 0);
 
+        // ส่งออกครอบคลุมทุกชื่อ Attribute ให้ JavaScript หน้าเว็บอ่านได้แน่ๆ
         $result[] = [
             'i_ProductID'    => $id,
+            'ProductID'      => $id,
             'c_ProductName'  => $name,
+            'ProductName'    => $name,
             'i_CategoryID'   => $cat,
+            'CategoryID'     => $cat,
             'i_SupplierID'   => $sup,
+            'SupplierID'     => $sup,
             'c_Unit'         => $unit,
+            'QuantityPerUnit'=> $unit,
+            'Unit'           => $unit,
             'f_Price'        => $price,
-            'i_UnitsInStock' => $stock
+            'UnitPrice'      => $price,
+            'Price'          => $price,
+            'i_UnitsInStock' => $stock,
+            'UnitsInStock'   => $stock,
+            'Quantity'       => $stock
         ];
     }
 
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
+
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }
 ?>
