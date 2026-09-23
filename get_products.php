@@ -12,30 +12,36 @@ try {
 
     $result = [];
     foreach ($products as $row) {
-        $id = 0; $name = ''; $cat = 0; $sup = 0; $unit = ''; $price = 0.0; $stock = 0;
-
-        // ค้นหาข้อมูลตามคอลัมน์จริงด้วย Keyword
+        // ปรับเป็นอักษรพิมพ์เล็กเพื่อแมปคีย์ได้ถูกต้องแน่นอน
+        $lRow = [];
         foreach ($row as $k => $v) {
-            $lk = strtolower($k);
+            $lRow[strtolower($k)] = $v;
+        }
 
-            if (strpos($lk, 'id') !== false && (strpos($lk, 'product') !== false || $lk === 'id')) {
-                $id = $v;
-            } elseif (strpos($lk, 'name') !== false) {
-                $name = $v;
-            } elseif (strpos($lk, 'cat') !== false) {
-                $cat = $v;
-            } elseif (strpos($lk, 'supplier') !== false) {
-                $sup = $v;
-            } elseif (strpos($lk, 'price') !== false && $v !== null && $v !== '') {
-                $price = floatval($v);
-            } elseif ((strpos($lk, 'stock') !== false || strpos($lk, 'quantity') !== false) && $v !== null && $v !== '' && strpos($lk, 'unit') === false) {
-                $stock = intval($v);
-            } elseif ((strpos($lk, 'unit') !== false || strpos($lk, 'quantityperunit') !== false) && strpos($lk, 'price') === false && strpos($lk, 'stock') === false) {
-                if ($v !== null) $unit = strval($v);
+        $id   = $lRow['productid'] ?? $lRow['i_productid'] ?? $lRow['id'] ?? reset($row);
+        $name = $lRow['productname'] ?? $lRow['c_productname'] ?? $lRow['name'] ?? '';
+        $cat  = $lRow['categoryid'] ?? $lRow['i_categoryid'] ?? $lRow['catid'] ?? 0;
+        $sup  = $lRow['supplierid'] ?? $lRow['i_supplierid'] ?? $lRow['supid'] ?? 0;
+        $unit = $lRow['quantityperunit'] ?? $lRow['c_unit'] ?? $lRow['unit'] ?? '';
+
+        // ดึงราคา
+        $price = 0.0;
+        foreach (['unitprice', 'f_unitprice', 'f_price', 'price'] as $pk) {
+            if (isset($lRow[$pk]) && $lRow[$pk] !== null && $lRow[$pk] !== '') {
+                $price = floatval($lRow[$pk]);
+                break;
             }
         }
 
-        // ส่งออก JSON ครบทุกรูปแบบชื่อ Key ไม่ว่า JS จะเรียกใช้ชื่อไหนก็อ่านค่าได้ถูกต้อง
+        // ดึงจำนวนคงเหลือ (แก้บั๊ก UnitsInStock แล้ว)
+        $stock = 0;
+        foreach (['unitsinstock', 'i_unitsinstock', 'quantity', 'i_quantity', 'stock', 'unitsinorder'] as $sk) {
+            if (isset($lRow[$sk]) && $lRow[$sk] !== null && $lRow[$sk] !== '') {
+                $stock = intval($lRow[$sk]);
+                break;
+            }
+        }
+
         $result[] = [
             'i_ProductID'     => $id,
             'ProductID'       => $id,
